@@ -23,9 +23,6 @@ int main(int argc, char *argv[]){
 
 	vector<int> sequence = generate_random_sequence(atoi(argv[1]));
 
-	if(DEBUG)
-		print_sequence(sequence);
-
 	test_vector(sequence);
 	test_list(sequence);
 
