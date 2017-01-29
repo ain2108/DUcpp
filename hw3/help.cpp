@@ -8,6 +8,7 @@
 #include <random>
 #include <stdexcept>
 #include <list>
+#include <map>
 
 #include "help.h"
 
@@ -94,7 +95,7 @@ void runtest(vector<int>& sequence, Container& test_container){
 	auto stop2 = chrono::high_resolution_clock::now();
 
 	using namespace std::chrono;
-	cout << duration_cast<nanoseconds>((stop1 - start1) + (stop2 - start2)).count() << " ";
+	cout << duration_cast<nanoseconds>((stop1 - start1) + (stop2 - start2)).count() << ",";
 	//cout << duration_cast<milliseconds>((stop1 - start1) + (stop2 - start2)).count() << "msec\n";
 
 }
@@ -107,6 +108,9 @@ void test_vector(vector<int>& sequence){
 
 	list<int> test_list;
 	runtest(sequence, test_list);
+
+	//map<int, int> test_map;
+	//runtest(sequence, test_map);
 
 	cout << '\n';
 
