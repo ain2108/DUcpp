@@ -296,16 +296,12 @@ for (int c = 1; c < ncols - 1; c++) {
 		dr = 0;
 		cc = c+dc;
 		rr = r+dr;
-		if (rr >= 0 && cc >= 0 && rr < nrows && cc < ncols) {
-			uint x = ncols*rr+cc;
-			uint y = 3*dc+dr+4;
-			
-			// Increment the accumulators
-			temp = filt[y];
-			sum_R += in[x].R * temp;
-			sum_G += in[x].G * temp;
-			sum_B += in[x].B * temp;
-		}
+		x = ncols*rr+cc;
+		y = 3*dc+dr+4;
+		temp = filt[y];
+		sum_R += in[x].R * temp;
+		sum_G += in[x].G * temp;
+		sum_B += in[x].B * temp;
 
 		//  .  .  .
     	//  .  x  .
@@ -314,17 +310,12 @@ for (int c = 1; c < ncols - 1; c++) {
 		dr = 0;
 		cc = c+dc;
 		rr = r+dr;
-		if (rr >= 0 && cc >= 0 && rr < nrows && cc < ncols) {
-			uint x = ncols*rr+cc;
-			uint y = 3*dc+dr+4;
-			
-			// Increment the accumulators
-			temp = filt[y];
-			sum_R += in[x].R * temp;
-			sum_G += in[x].G * temp;
-			sum_B += in[x].B * temp;
-		}
-
+		x = ncols*rr+cc;
+		y = 3*dc+dr+4;
+		temp = filt[y];
+		sum_R += in[x].R * temp;
+		sum_G += in[x].G * temp;
+		sum_B += in[x].B * temp;
 
 		//  .  .  .
     	//  .  .  x
@@ -333,16 +324,13 @@ for (int c = 1; c < ncols - 1; c++) {
 		dr = 0;
 		cc = c+dc;
 		rr = r+dr;
-		if (rr >= 0 && cc >= 0 && rr < nrows && cc < ncols) {
-			uint x = ncols*rr+cc;
-			uint y = 3*dc+dr+4;
-			
-			// Increment the accumulators
-			temp = filt[y];
-			sum_R += in[x].R * temp;
-			sum_G += in[x].G * temp;
-			sum_B += in[x].B * temp;
-		}
+		x = ncols*rr+cc;
+		y = 3*dc+dr+4;
+		temp = filt[y];
+		sum_R += in[x].R * temp;
+		sum_G += in[x].G * temp;
+		sum_B += in[x].B * temp;
+		
 
 		//  .  .  .
     	//  .  .  .
@@ -351,16 +339,13 @@ for (int c = 1; c < ncols - 1; c++) {
 		dr = -1;
 		cc = c+dc;
 		rr = r+dr;	
-		if (rr >= 0 && cc >= 0 && rr < nrows && cc < ncols) {
-			uint x = ncols*rr+cc;
-			uint y = 3*dc+dr+4;
-			
-			// Increment the accumulators
-			temp = filt[y];
-			sum_R += in[x].R * temp;
-			sum_G += in[x].G * temp;
-			sum_B += in[x].B * temp;
-		}
+		x = ncols*rr+cc;
+		y = 3*dc+dr+4;
+		temp = filt[y];
+		sum_R += in[x].R * temp;
+		sum_G += in[x].G * temp;
+		sum_B += in[x].B * temp;
+		
 
 		//  .  .  .
     	//  .  .  .
@@ -369,16 +354,13 @@ for (int c = 1; c < ncols - 1; c++) {
 		dr = -1;
 		cc = c+dc;
 		rr = r+dr;	
-		if (rr >= 0 && cc >= 0 && rr < nrows && cc < ncols) {
-			uint x = ncols*rr+cc;
-			uint y = 3*dc+dr+4;
-			
-			// Increment the accumulators
-			temp = filt[y];
-			sum_R += in[x].R * temp;
-			sum_G += in[x].G * temp;
-			sum_B += in[x].B * temp;
-		}
+		x = ncols*rr+cc;
+		y = 3*dc+dr+4;
+		temp = filt[y];
+		sum_R += in[x].R * temp;
+		sum_G += in[x].G * temp;
+		sum_B += in[x].B * temp;
+		
 
 
 		//  .  .  .
@@ -387,17 +369,14 @@ for (int c = 1; c < ncols - 1; c++) {
 		dc = 1;
 		dr = -1;
 		cc = c+dc;
-		rr = r+dr;		
-		if (rr >= 0 && cc >= 0 && rr < nrows && cc < ncols) {
-			uint x = ncols*rr+cc;
-			uint y = 3*dc+dr+4;
-			
-			// Increment the accumulators
-			temp = filt[y];
-			sum_R += in[x].R * temp;
-			sum_G += in[x].G * temp;
-			sum_B += in[x].B * temp;
-		}
+		rr = r+dr;			
+		x = ncols*rr+cc;
+		y = 3*dc+dr+4;
+		temp = filt[y];
+		sum_R += in[x].R * temp;
+		sum_G += in[x].G * temp;
+		sum_B += in[x].B * temp;
+		
 
 
     	x = ncols*r+c;
