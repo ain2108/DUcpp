@@ -9,8 +9,6 @@
 #define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
 
-#define DEBUG 0
-
 using namespace std;
 
 int main(int argc, char *argv[]){
@@ -21,10 +19,11 @@ int main(int argc, char *argv[]){
 		return -EXIT_FAILURE;
 	}
 
+	/* Generate the random sequence of requested size */
 	vector<int> sequence = generate_random_sequence(atoi(argv[1]));
 
-	test_vector(sequence);
-	test_list(sequence);
+	/* Run the tests */
+	test(sequence);
 
 	return EXIT_SUCCESS;	
 }

@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <list>
 #include <map>
+#include <memory>
 
 #include "help.h"
 
@@ -29,8 +30,6 @@ template <typename Container>
 bool sequence_good(const Container& seq){
 	int i = 0;
 	for(auto a : seq){
-		/*if (a == 0)
-			break;*/
 
 		if (a != i + 1)
 			return false;
@@ -95,29 +94,60 @@ void runtest(vector<int>& sequence, Container& test_container){
 	auto stop2 = chrono::high_resolution_clock::now();
 
 	using namespace std::chrono;
-	cout << duration_cast<nanoseconds>((stop1 - start1) + (stop2 - start2)).count() << ",";
-	//cout << duration_cast<milliseconds>((stop1 - start1) + (stop2 - start2)).count() << "msec\n";
+	//cout << duration_cast<nanoseconds>((stop1 - start1) + (stop2 - start2)).count() << ",";
+	cout << duration_cast<microseconds>((stop1 - start1) + (stop2 - start2)).count() << ",";
 
 }
-
 
 void test_vector(vector<int>& sequence){
 
 	vector<int> test_vector;	
 	runtest(sequence, test_vector);
 
-	list<int> test_list;
-	runtest(sequence, test_list);
-
-	//map<int, int> test_map;
-	//runtest(sequence, test_map);
-
-	cout << '\n';
-
 }
 
 void test_list(vector<int>& sequence){
 	
+	//std::allocator<int> a;
+	//a.allocate(100000);
+	//list<int,std::allocator<int>> test_list(a);
+	list<int> test_list;
+	runtest(sequence, test_list);
+	//print_sequence(test_list);
+
+}
+
+
+void test_map(vector<int>& sequence){
+
+	map<int,int> test_map;
+
+	auto start1 = chrono::high_resolution_clock::now();
+
+	/* Adding the elements */
+	for(auto x: sequence){
+		test_map.insert({x, x});
+	}
+	
+	/* Erasing elements */
+	for(auto x: sequence){
+		test_map.erase(x);
+	}
+
+	using namespace std::chrono;
+	auto stop1 = chrono::high_resolution_clock::now();
+	cout << duration_cast<microseconds>(stop1 - start1).count() << ",";
+
+}
+
+
+void test(vector<int>& sequence){
+
+	test_vector(sequence);
+	test_list(sequence);
+	test_map(sequence);
+
+	cout << '\n';
 }
 
 vector<int> generate_random_sequence(int n){
