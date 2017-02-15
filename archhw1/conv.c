@@ -6,7 +6,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#define NTRIALS 20
+#define NTRIALS 50
 
 #define FILTER_BYTES 10*sizeof(char)
 
@@ -44,33 +44,33 @@ char* random_filter() {
 
   switch (rand() % 4) {
   case 0:  // identity
-    k[0] = 0; k[1] = 0; k[2] = 0;
-    k[3] = 0; k[4] = 1; k[5] = 0;
-    k[6] = 0; k[7] = 0; k[8] = 0;
-    k[9] = 1;
-    return k;
+  k[0] = 0; k[1] = 0; k[2] = 0;
+  k[3] = 0; k[4] = 1; k[5] = 0;
+  k[6] = 0; k[7] = 0; k[8] = 0;
+  k[9] = 1;
+  return k;
   case 1:  // edge detection
-    k[0] = -1; k[1] = -1; k[2] = -1;
-    k[3] = -1; k[4] =  8; k[5] = -1;
-    k[6] = -1; k[7] = -1; k[8] = -1;
-    k[9] = 1;
-    return k;
+  k[0] = -1; k[1] = -1; k[2] = -1;
+  k[3] = -1; k[4] =  8; k[5] = -1;
+  k[6] = -1; k[7] = -1; k[8] = -1;
+  k[9] = 1;
+  return k;
   case 2:  // sharpen
-    k[0] =  0; k[1] = -1; k[2] =  0;
-    k[3] = -1; k[4] =  5; k[5] = -1;
-    k[6] =  0; k[7] = -1; k[8] =  0;
-    k[9] = 1;
-    return k;
+  k[0] =  0; k[1] = -1; k[2] =  0;
+  k[3] = -1; k[4] =  5; k[5] = -1;
+  k[6] =  0; k[7] = -1; k[8] =  0;
+  k[9] = 1;
+  return k;
   case 3:  // gaussian blur
-    k[0] =  1; k[1] =  2; k[2] =  1;
-    k[3] =  2; k[4] =  4; k[5] =  2;
-    k[6] =  1; k[7] =  2; k[8] =  1;
-    k[9] = 16;
-    return k;
+  k[0] =  1; k[1] =  2; k[2] =  1;
+  k[3] =  2; k[4] =  4; k[5] =  2;
+  k[6] =  1; k[7] =  2; k[8] =  1;
+  k[9] = 16;
+  return k;
   default: 
-    assert(0);
-  }  
-  return 0;
+  assert(0);
+}  
+return 0;
 }
 
 void print_image(pixel* img, uint nrows, uint ncols) {
@@ -114,29 +114,36 @@ void conv_ref(uint nrows, uint ncols, pixel* in, char* filt, pixel* out) {
       uint sum_B = 0;
 
       for (int dc = -1; dc <= 1; dc++) {
-	for (int dr = -1; dr <= 1; dr++) {
-	  int cc = c+dc;
-	  int rr = r+dr;
-	  if (rr >= 0 && cc >= 0 && rr < nrows && cc < ncols) {
-	    uint x = ncols*rr+cc;
-	    uint y = 3*(dc+1)+(dr+1);
-	    assert(x < ncols*nrows);
-	    assert(y < FILTER_BYTES);
-	    sum_R += in[x].R * filt[y];
-	    sum_G += in[x].G * filt[y];
-	    sum_B += in[x].B * filt[y];
-	  }
-	}
-      }
+       for (int dr = -1; dr <= 1; dr++) {
 
-      uint x = ncols*r+c;
-      uchar d = filt[FILTER_BYTES-1];
-      out[x].R = (float) sum_R / d;
-      out[x].G = (float) sum_G / d;
-      out[x].B = (float) sum_B / d;
+         // Row and column of convolution sum term 
+         int cc = c+dc;
+         int rr = r+dr;
 
-    }
-  }
+         if (rr >= 0 && cc >= 0 && rr < nrows && cc < ncols) {
+           
+           // The address in the array of the sum term
+           uint x = ncols*rr+cc;
+
+           // Address of the multiplier in the filter
+           uint y = 3*(dc+1)+(dr+1);
+           assert(x < ncols*nrows);
+           assert(y < FILTER_BYTES);
+           sum_R += in[x].R * filt[y];
+           sum_G += in[x].G * filt[y];
+           sum_B += in[x].B * filt[y];
+         }
+       }
+     }
+
+     uint x = ncols*r+c;
+     uchar d = filt[FILTER_BYTES-1];
+     out[x].R = (float) sum_R / d;
+     out[x].G = (float) sum_G / d;
+     out[x].B = (float) sum_B / d;
+
+   }
+ }
 }
 
 void conv_opt(uint nrows, uint ncols, pixel* in, char* filt, pixel* out) {
