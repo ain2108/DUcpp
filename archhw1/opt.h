@@ -256,7 +256,7 @@ for (int r = 1; r < nrows - 1; r++) {
 		uint y = 3*dc+dr+4;
 		
 		// Increment the accumulators
-		temp = filt[y];
+		temp = filt[6];
 		sum_R += in[x].R * temp;
 		sum_G += in[x].G * temp;
 		sum_B += in[x].B * temp;
@@ -266,13 +266,9 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  .  x  .
     	//  .  .  .
     	//  .  .  .
-		dc = 0;
-		dr = 1;
-		cc = c+dc;
-		rr = r+dr;
 		x++;
-		y = 3*dc+dr+4;
-		temp = filt[y];
+
+		temp = filt[7];
 		sum_R += in[x].R * temp;
 		sum_G += in[x].G * temp;
 		sum_B += in[x].B * temp;
@@ -281,13 +277,9 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  .  .  x
     	//  .  .  .
     	//  .  .  .
-		dc = 1;
-		dr = 1;
-		cc = c+dc;
-		rr = r+dr;
 		x++;
-		y = 3*dc+dr+4;
-		temp = filt[y];
+
+		temp = filt[8];
 		sum_R += in[x].R * temp;
 		sum_G += in[x].G * temp;
 		sum_B += in[x].B * temp;
@@ -302,8 +294,8 @@ for (int r = 1; r < nrows - 1; r++) {
 		cc = c+dc;
 		rr = r+dr;
 		x = ncols*rr+cc;
-		y = 3*dc+dr+4;
-		temp = filt[y];
+
+		temp = filt[3];
 		sum_R += in[x].R * temp;
 		sum_G += in[x].G * temp;
 		sum_B += in[x].B * temp;
@@ -311,13 +303,9 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  .  .  .
     	//  .  x  .
     	//  .  .  .
-		dc = 0;
-		dr = 0;
-		cc = c+dc;
-		rr = r+dr;
 		x++;
-		y = 3*dc+dr+4;
-		temp = filt[y];
+
+		temp = filt[4];
 		sum_R += in[x].R * temp;
 		sum_G += in[x].G * temp;
 		sum_B += in[x].B * temp;
@@ -325,13 +313,9 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  .  .  .
     	//  .  .  x
     	//  .  .  .
-		dc = 1;
-		dr = 0;
-		cc = c+dc;
-		rr = r+dr;
 		x++;
-		y = 3*dc+dr+4;
-		temp = filt[y];
+
+		temp = filt[5];
 		sum_R += in[x].R * temp;
 		sum_G += in[x].G * temp;
 		sum_B += in[x].B * temp;
@@ -345,8 +329,8 @@ for (int r = 1; r < nrows - 1; r++) {
 		cc = c+dc;
 		rr = r+dr;	
 		x = ncols*rr+cc;
-		y = 3*dc+dr+4;
-		temp = filt[y];
+
+		temp = filt[0];
 		sum_R += in[x].R * temp;
 		sum_G += in[x].G * temp;
 		sum_B += in[x].B * temp;
@@ -355,13 +339,8 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  .  .  .
     	//  .  .  .
     	//  .  x  .
-		dc = 0;
-		dr = -1;
-		cc = c+dc;
-		rr = r+dr;	
 		x++;
-		y = 3*dc+dr+4;
-		temp = filt[y];
+		temp = filt[1];
 		sum_R += in[x].R * temp;
 		sum_G += in[x].G * temp;
 		sum_B += in[x].B * temp;
@@ -370,14 +349,9 @@ for (int r = 1; r < nrows - 1; r++) {
 
 		//  .  .  .
     	//  .  .  .
-    	//  .  .  x
-		dc = 1;
-		dr = -1;
-		cc = c+dc;
-		rr = r+dr;			
+    	//  .  .  x		
 		x++;
-		y = 3*dc+dr+4;
-		temp = filt[y];
+		temp = filt[2];
 		sum_R += in[x].R * temp;
 		sum_G += in[x].G * temp;
 		sum_B += in[x].B * temp;
