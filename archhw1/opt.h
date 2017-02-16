@@ -7,6 +7,8 @@
 */
 
 // Fix the top border
+
+uchar d = filt[FILTER_BYTES-1];
 for (int c = 0; c < ncols; c++) {
    	  int r = 0;
       uint sum_R = 0;
@@ -37,7 +39,6 @@ for (int c = 0; c < ncols; c++) {
      }
 
      uint x = ncols*r+c;
-     uchar d = filt[FILTER_BYTES-1];
      out[x].R = (float) sum_R / d;
      out[x].G = (float) sum_G / d;
      out[x].B = (float) sum_B / d;
@@ -75,7 +76,6 @@ for (int c = 0; c < ncols; c++) {
      }
 
      uint x = ncols*r+c;
-     uchar d = filt[FILTER_BYTES-1];
      out[x].R = (float) sum_R / d;
      out[x].G = (float) sum_G / d;
      out[x].B = (float) sum_B / d;
@@ -112,7 +112,6 @@ int c = 0;
      }
 
      uint x = ncols*r+c;
-     uchar d = filt[FILTER_BYTES-1];
      out[x].R = (float) sum_R / d;
      out[x].G = (float) sum_G / d;
      out[x].B = (float) sum_B / d;
@@ -149,7 +148,6 @@ c = ncols - 1;
      }
 
      uint x = ncols*r+c;
-     uchar d = filt[FILTER_BYTES-1];
      out[x].R = (float) sum_R / d;
      out[x].G = (float) sum_G / d;
      out[x].B = (float) sum_B / d;
@@ -217,20 +215,20 @@ c = ncols - 1;
 
 
 int temp;
-uchar d = filt[FILTER_BYTES-1];
-pixel 	t1, t2, t3,
-		t4, t5, t6,
-		t7, t8, t9;
 
-t1 = in[0];
-t2 = in[1];
-t3 = in[2];
-t4 = in[ncols];
-t5 = in[ncols + 1];
-t6 = in[ncols + 2];
-t7 = in[ncols + ncols];
-t8 = in[ncols + ncols + 1];
-t9 = in[ncols + ncols + 2];
+// pixel 	t1, t2, t3,
+// 		t4, t5, t6,
+// 		t7, t8, t9;
+
+// t1 = in[0];
+// t2 = in[1];
+// t3 = in[2];
+// t4 = in[ncols];
+// t5 = in[ncols + 1];
+// t6 = in[ncols + 2];
+// t7 = in[ncols + ncols];
+// t8 = in[ncols + ncols + 1];
+// t9 = in[ncols + ncols + 2];
 
 
 for (int r = 1; r < nrows - 1; r++) {
@@ -390,6 +388,5 @@ for (int r = 1; r < nrows - 1; r++) {
     	out[x].R = (float) sum_R / d;
     	out[x].G = (float) sum_G / d;
     	out[x].B = (float) sum_B / d;
-
 	}
 }
