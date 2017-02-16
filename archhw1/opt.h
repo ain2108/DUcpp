@@ -326,13 +326,13 @@ for (int r = 1; r < nrows - 1; r++) {
 		sum_R += ((unsigned char) ((t7 << 24) >> 24)) * temp;
 		sum_G += ((unsigned char)(t7 >> 8)) * temp;
 		sum_B += ((unsigned char)(t7 >> 16)) * temp;
-		if(in[x].R != ((unsigned char)((t7 << 24) >> 24))){
-		printf("x: %d, our index %d\n", x, ncols + ncols);
-		printf("%d:%d reds: %d %d, green: %d %d, blue: %d %d\n", r, c,
-			in[x].R, ((unsigned char)((t7 << 24) >> 24)),
-			in[x].G, ((unsigned char)(t7 >> 8)),
-			in[x].B, ((unsigned char)(t7 >> 16)));
-		}
+		// if(in[x].R != ((unsigned char)((t7 << 24) >> 24))){
+		// printf("x: %d, our index %d\n", x, ncols + ncols);
+		// printf("%d:%d reds: %d %d, green: %d %d, blue: %d %d\n", r, c,
+		// 	in[x].R, ((unsigned char)((t7 << 24) >> 24)),
+		// 	in[x].G, ((unsigned char)(t7 >> 8)),
+		// 	in[x].B, ((unsigned char)(t7 >> 16)));
+		// }
 
 
 		//  .  x  .
@@ -356,12 +356,12 @@ for (int r = 1; r < nrows - 1; r++) {
 		sum_G += ((unsigned char)(t8 >> 8)) * temp;
 		sum_B += ((unsigned char)(t8 >> 16)) * temp;
 
-		if(in[x].R != ((unsigned char)((t8 << 24) >> 24))){
-		printf("%d:%d reds: %d %d, green: %d %d, blue: %d %d\n", r, c,
-			in[x].R, ((unsigned char)((t8 << 24) >> 24)),
-			in[x].G, ((unsigned char)(t8 >> 8)),
-			in[x].B, ((unsigned char)(t8 >> 16)));
-		}
+		// if(in[x].R != ((unsigned char)((t8 << 24) >> 24))){
+		// printf("%d:%d reds: %d %d, green: %d %d, blue: %d %d\n", r, c,
+		// 	in[x].R, ((unsigned char)((t8 << 24) >> 24)),
+		// 	in[x].G, ((unsigned char)(t8 >> 8)),
+		// 	in[x].B, ((unsigned char)(t8 >> 16)));
+		// }
 
 		//  .  .  x
     	//  .  .  .
@@ -408,9 +408,12 @@ for (int r = 1; r < nrows - 1; r++) {
 		// sum_R += pix.R * temp;
 		// sum_G += pix.G * temp;
 		// sum_B += pix.B * temp;
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		// sum_R += in[x].R * temp;
+		// sum_G += in[x].G * temp;
+		// sum_B += in[x].B * temp;
+		sum_R += ((unsigned char) ((t4 << 24) >> 24)) * temp;
+		sum_G += ((unsigned char)(t4 >> 8)) * temp;
+		sum_B += ((unsigned char)(t4 >> 16)) * temp;
 
 		//  .  .  .
     	//  .  x  .
@@ -426,9 +429,12 @@ for (int r = 1; r < nrows - 1; r++) {
 		// sum_R += pix.R * temp;
 		// sum_G += pix.G * temp;
 		// sum_B += pix.B * temp;
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		// sum_R += in[x].R * temp;
+		// sum_G += in[x].G * temp;
+		// sum_B += in[x].B * temp;
+		sum_R += ((unsigned char) ((t5 << 24) >> 24)) * temp;
+		sum_G += ((unsigned char)(t5 >> 8)) * temp;
+		sum_B += ((unsigned char)(t5 >> 16)) * temp;
 
 		//  .  .  .
     	//  .  .  x
@@ -444,9 +450,19 @@ for (int r = 1; r < nrows - 1; r++) {
 		// sum_R += pix.R * temp;
 		// sum_G += pix.G * temp;
 		// sum_B += pix.B * temp;
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		// sum_R += in[x].R * temp;
+		// sum_G += in[x].G * temp;
+		// sum_B += in[x].B * temp;
+		sum_R += ((unsigned char) ((t6 << 24) >> 24)) * temp;
+		sum_G += ((unsigned char)(t6 >> 8)) * temp;
+		sum_B += ((unsigned char)(t6 >> 16)) * temp;
+
+		t4 = t5;
+		t5 = t6;
+		t6 = 0;
+		t6+= (int) in[x + 1].R;
+		t6+= ((int) in[x + 1].G) << 8;
+		t6+= ((int) in[x + 1].B) << 16;
 		
 
 		//  .  .  .
@@ -463,9 +479,12 @@ for (int r = 1; r < nrows - 1; r++) {
 		// sum_R += pix.R * temp;
 		// sum_G += pix.G * temp;
 		// sum_B += pix.B * temp;
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		// sum_R += in[x].R * temp;
+		// sum_G += in[x].G * temp;
+		// sum_B += in[x].B * temp;
+		sum_R += ((unsigned char) ((t1 << 24) >> 24)) * temp;
+		sum_G += ((unsigned char)(t1 >> 8)) * temp;
+		sum_B += ((unsigned char)(t1 >> 16)) * temp;
 		
 
 		//  .  .  .
@@ -482,9 +501,12 @@ for (int r = 1; r < nrows - 1; r++) {
 		// sum_R += pix.R * temp;
 		// sum_G += pix.G * temp;
 		// sum_B += pix.B * temp;
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		// sum_R += in[x].R * temp;
+		// sum_G += in[x].G * temp;
+		// sum_B += in[x].B * temp;
+		sum_R += ((unsigned char) ((t2 << 24) >> 24)) * temp;
+		sum_G += ((unsigned char)(t2 >> 8)) * temp;
+		sum_B += ((unsigned char)(t2 >> 16)) * temp;
 		
 
 
@@ -502,9 +524,19 @@ for (int r = 1; r < nrows - 1; r++) {
 		// sum_R += pix.R * temp;
 		// sum_G += pix.G * temp;
 		// sum_B += pix.B * temp;
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		// sum_R += in[x].R * temp;
+		// sum_G += in[x].G * temp;
+		// sum_B += in[x].B * temp;
+		sum_R += ((unsigned char) ((t3 << 24) >> 24)) * temp;
+		sum_G += ((unsigned char)(t3 >> 8)) * temp;
+		sum_B += ((unsigned char)(t3 >> 16)) * temp;
+
+		t1 = t2;
+		t2 = t3;
+		t3 = 0;
+		t3+= (int) in[x + 1].R;
+		t3+= ((int) in[x + 1].G) << 8;
+		t3+= ((int) in[x + 1].B) << 16;
 		
 
 
@@ -514,6 +546,37 @@ for (int r = 1; r < nrows - 1; r++) {
     	out[x].G = (float) sum_G / d;
     	out[x].B = (float) sum_B / d;
 	}
+
+	t1 = 0;
+	t1+= (int) in[ncols*r].R;
+	t1+= ((int) in[ncols*r].G) << 8;
+	t1+= ((int) in[ncols*r].B) << 16;
+
+	t2 = 0;
+	t2+= (int) in[ncols*r + 1].R;
+	t2+= ((int) in[ncols*r + 1].G) << 8;
+	t2+= ((int) in[ncols*r + 1].B) << 16;
+
+	t3 = 0;
+	t3+= (int) in[ncols*r + 2].R;
+	t3+= ((int) in[ncols*r + 2].G) << 8;
+	t3+= ((int) in[ncols*r + 2].B) << 16;
+
+
+	t4 = 0;
+	t4+= (int) in[ncols*r + ncols].R;
+	t4+= ((int) in[ncols*r + ncols].G) << 8;
+	t4+= ((int) in[ncols*r + ncols].B) << 16;
+
+	t5 = 0;
+	t5+= (int) in[ncols*r + ncols + 1].R;
+	t5+= ((int) in[ncols*r + ncols + 1].G) << 8;
+	t5+= ((int) in[ncols*r + ncols + 1].B) << 16;
+
+	t6 = 0;
+	t6+= (int) in[ncols*r + ncols + 2].R;
+	t6+= ((int) in[ncols*r + ncols + 2].G) << 8;
+	t6+= ((int) in[ncols*r + ncols + 2].B) << 16;
 
 	t7 = 0;
 	t7+= (int) in[ncols*r + 2*ncols].R;
