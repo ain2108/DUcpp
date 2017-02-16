@@ -231,6 +231,7 @@ int temp;
 // t9 = in[ncols + ncols + 2];
 
 
+
 for (int r = 1; r < nrows - 1; r++) {
 	for (int c = 1; c < ncols - 1; c++) {
     	
@@ -269,7 +270,7 @@ for (int r = 1; r < nrows - 1; r++) {
 		dr = 1;
 		cc = c+dc;
 		rr = r+dr;
-		x = ncols*rr+cc;
+		x++;
 		y = 3*dc+dr+4;
 		temp = filt[y];
 		sum_R += in[x].R * temp;
@@ -284,7 +285,7 @@ for (int r = 1; r < nrows - 1; r++) {
 		dr = 1;
 		cc = c+dc;
 		rr = r+dr;
-		x = ncols*rr+cc;
+		x++;
 		y = 3*dc+dr+4;
 		temp = filt[y];
 		sum_R += in[x].R * temp;
@@ -314,7 +315,7 @@ for (int r = 1; r < nrows - 1; r++) {
 		dr = 0;
 		cc = c+dc;
 		rr = r+dr;
-		x = ncols*rr+cc;
+		x++;
 		y = 3*dc+dr+4;
 		temp = filt[y];
 		sum_R += in[x].R * temp;
@@ -328,7 +329,7 @@ for (int r = 1; r < nrows - 1; r++) {
 		dr = 0;
 		cc = c+dc;
 		rr = r+dr;
-		x = ncols*rr+cc;
+		x++;
 		y = 3*dc+dr+4;
 		temp = filt[y];
 		sum_R += in[x].R * temp;
@@ -358,7 +359,7 @@ for (int r = 1; r < nrows - 1; r++) {
 		dr = -1;
 		cc = c+dc;
 		rr = r+dr;	
-		x = ncols*rr+cc;
+		x++;
 		y = 3*dc+dr+4;
 		temp = filt[y];
 		sum_R += in[x].R * temp;
@@ -374,7 +375,7 @@ for (int r = 1; r < nrows - 1; r++) {
 		dr = -1;
 		cc = c+dc;
 		rr = r+dr;			
-		x = ncols*rr+cc;
+		x++;
 		y = 3*dc+dr+4;
 		temp = filt[y];
 		sum_R += in[x].R * temp;
