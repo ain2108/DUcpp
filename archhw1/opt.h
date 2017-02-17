@@ -227,7 +227,7 @@ int temp;
 // t9 = in[ncols + ncols + 2];
 
 
-
+int ncols_sum = ncols;
 for (int r = 1; r < nrows - 1; r++) {
 	for (int c = 1; c < ncols - 1; c++) {
     	
@@ -355,8 +355,9 @@ for (int r = 1; r < nrows - 1; r++) {
 
     	x = ncols*r+c;
   
-    	out[x].R = (float) sum_R / d;
+    	out[x].R = sum_R / d;
     	out[x].G = (float) sum_G / d;
     	out[x].B = (float) sum_B / d;
 	}
+	ncols_sum+=ncols;
 }
