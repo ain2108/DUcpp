@@ -66,8 +66,8 @@ for (int c = 0; c < ncols; c++) {
 
            // Address of the multiplier in the filter
            uint y = 3*(dc+1)+(dr+1);
-           assert(x < ncols*nrows);
-           assert(y < FILTER_BYTES);
+           //assert(x < ncols*nrows);
+           //assert(y < FILTER_BYTES);
            sum_R += in[x].R * filt[y];
            sum_G += in[x].G * filt[y];
            sum_B += in[x].B * filt[y];
@@ -102,8 +102,8 @@ int c = 0;
 
            // Address of the multiplier in the filter
            uint y = 3*(dc+1)+(dr+1);
-           assert(x < ncols*nrows);
-           assert(y < FILTER_BYTES);
+           //assert(x < ncols*nrows);
+           //assert(y < FILTER_BYTES);
            sum_R += in[x].R * filt[y];
            sum_G += in[x].G * filt[y];
            sum_B += in[x].B * filt[y];
@@ -138,8 +138,8 @@ c = ncols - 1;
 
            // Address of the multiplier in the filter
            uint y = 3*(dc+1)+(dr+1);
-           assert(x < ncols*nrows);
-           assert(y < FILTER_BYTES);
+           //assert(x < ncols*nrows);
+           //assert(y < FILTER_BYTES);
            sum_R += in[x].R * filt[y];
            sum_G += in[x].G * filt[y];
            sum_B += in[x].B * filt[y];
@@ -253,7 +253,6 @@ for (int r = 1; r < nrows - 1; r++) {
 		uint x = ncols*rr+cc;
 
 		// one less operation here
-		uint y = 3*dc+dr+4;
 		
 		// Increment the accumulators
 		temp = filt[6];
