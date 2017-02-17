@@ -29,8 +29,7 @@ for (int c = 0; c < ncols; c++) {
 
            // Address of the multiplier in the filter
            uint y = 3*(dc+1)+(dr+1);
-           assert(x < ncols*nrows);
-           assert(y < FILTER_BYTES);
+
            sum_R += in[x].R * filt[y];
            sum_G += in[x].G * filt[y];
            sum_B += in[x].B * filt[y];
@@ -66,8 +65,7 @@ for (int c = 0; c < ncols; c++) {
 
            // Address of the multiplier in the filter
            uint y = 3*(dc+1)+(dr+1);
-           //assert(x < ncols*nrows);
-           //assert(y < FILTER_BYTES);
+           
            sum_R += in[x].R * filt[y];
            sum_G += in[x].G * filt[y];
            sum_B += in[x].B * filt[y];
@@ -102,8 +100,7 @@ int c = 0;
 
            // Address of the multiplier in the filter
            uint y = 3*(dc+1)+(dr+1);
-           //assert(x < ncols*nrows);
-           //assert(y < FILTER_BYTES);
+
            sum_R += in[x].R * filt[y];
            sum_G += in[x].G * filt[y];
            sum_B += in[x].B * filt[y];
@@ -138,8 +135,7 @@ c = ncols - 1;
 
            // Address of the multiplier in the filter
            uint y = 3*(dc+1)+(dr+1);
-           //assert(x < ncols*nrows);
-           //assert(y < FILTER_BYTES);
+
            sum_R += in[x].R * filt[y];
            sum_G += in[x].G * filt[y];
            sum_B += in[x].B * filt[y];
@@ -242,9 +238,9 @@ for (int r = 1; r < nrows - 1; r++) {
 
       	/* Unrolling the loop */
       	
+    	//  .  .  .
+    	//  .  .  .
     	//  x  .  .
-    	//  .  .  .
-    	//  .  .  .
       	int dc = -1;
       	int dr = 1;
 
@@ -262,10 +258,10 @@ for (int r = 1; r < nrows - 1; r++) {
 		
 
 
-		//  .  x  .
+		//  .  .  .
     	//  .  .  .
-    	//  .  .  .
-		x++;
+    	//  .  x  .
+		++x;
 
 		temp = filt[7];
 		sum_R += in[x].R * temp;
@@ -273,10 +269,10 @@ for (int r = 1; r < nrows - 1; r++) {
 		sum_B += in[x].B * temp;
 		
 
-		//  .  .  x
+		//  .  .  .
     	//  .  .  .
-    	//  .  .  .
-		x++;
+    	//  .  .  x
+		++x;
 
 		temp = filt[8];
 		sum_R += in[x].R * temp;
@@ -302,7 +298,7 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  .  .  .
     	//  .  x  .
     	//  .  .  .
-		x++;
+		++x;
 
 		temp = filt[4];
 		sum_R += in[x].R * temp;
@@ -312,7 +308,7 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  .  .  .
     	//  .  .  x
     	//  .  .  .
-		x++;
+		++x;
 
 		temp = filt[5];
 		sum_R += in[x].R * temp;
@@ -320,9 +316,9 @@ for (int r = 1; r < nrows - 1; r++) {
 		sum_B += in[x].B * temp;
 		
 
-		//  .  .  .
+		//  x  .  .
     	//  .  .  .
-    	//  x  .  .
+    	//  .  .  .
 		dc = -1;
 		dr = -1;
 		cc = c+dc;
@@ -335,10 +331,10 @@ for (int r = 1; r < nrows - 1; r++) {
 		sum_B += in[x].B * temp;
 		
 
-		//  .  .  .
+		//  .  x  .
     	//  .  .  .
-    	//  .  x  .
-		x++;
+    	//  .  .  .
+		++x;
 		temp = filt[1];
 		sum_R += in[x].R * temp;
 		sum_G += in[x].G * temp;
@@ -346,10 +342,10 @@ for (int r = 1; r < nrows - 1; r++) {
 		
 
 
-		//  .  .  .
+		//  .  .  x
     	//  .  .  .
-    	//  .  .  x		
-		x++;
+    	//  .  .  .		
+		++x;
 		temp = filt[2];
 		sum_R += in[x].R * temp;
 		sum_G += in[x].G * temp;
