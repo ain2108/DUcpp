@@ -8,7 +8,7 @@
 
 // Fix the top border
 
-uchar d = filt[FILTER_BYTES-1];
+const uchar d = filt[FILTER_BYTES-1];
 for (int c = 0; c < ncols; c++) {
    	  int r = 0;
       uint sum_R = 0;
@@ -225,28 +225,22 @@ int temp;
 // t7 = in[ncols + ncols];
 // t8 = in[ncols + ncols + 1];
 // t9 = in[ncols + ncols + 2];
-
-
-int ncols_sum = ncols;
+int bound;
+int ncols_sum = ncols + 1;
 for (int r = 1; r < nrows - 1; r++) {
-	for (int c = 1; c < ncols - 1; c++) {
+	bound = ncols_sum + ncols - 2;
+	for (; ncols_sum < bound; ncols_sum++) {
     	
     	uint sum_R = 0;
     	uint sum_G = 0;
     	uint sum_B = 0;
 
-
-      	/* Unrolling the loop */
+    	/* Unrolling the loop */
       	
     	//  .  .  .
     	//  .  .  .
     	//  x  .  .
-      	int dc = -1;
-      	int dr = 1;
-
-      	int cc = c+dc;
-		int rr = r+dr;
-		uint x = ncols*rr+cc;
+		uint x = ncols_sum + ncols - 1;
 
 		// one less operation here
 		
@@ -284,11 +278,7 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  .  .  .
     	//  x  .  .
     	//  .  .  .
-		dc = -1;
-		dr = 0;
-		cc = c+dc;
-		rr = r+dr;
-		x = ncols*rr+cc;
+		x = ncols_sum -1;
 
 		temp = filt[3];
 		sum_R += in[x].R * temp;
@@ -319,11 +309,7 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  x  .  .
     	//  .  .  .
     	//  .  .  .
-		dc = -1;
-		dr = -1;
-		cc = c+dc;
-		rr = r+dr;	
-		x = ncols*rr+cc;
+		x = ncols_sum - ncols - 1;
 
 		temp = filt[0];
 		sum_R += in[x].R * temp;
@@ -352,12 +338,14 @@ for (int r = 1; r < nrows - 1; r++) {
 		sum_B += in[x].B * temp;
 		
 
-
-    	x = ncols*r+c;
+		//printf("%d %d\n",ncols*r+c, ncols_sum);
+    	//x = ncols_sum;
   
-    	out[x].R = sum_R / d;
-    	out[x].G = (float) sum_G / d;
-    	out[x].B = (float) sum_B / d;
+
+    	out[ncols_sum].R = (float) sum_R / d;
+    	out[ncols_sum].G = (float) sum_G / d;
+    	out[ncols_sum].B = (float) sum_B / d;
+    	//++ncols_sum;
 	}
-	ncols_sum+=ncols;
+	ncols_sum+=2;
 }
