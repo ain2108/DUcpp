@@ -212,19 +212,33 @@ c = ncols - 1;
 
 int temp;
 
-// pixel 	t1, t2, t3,
-// 		t4, t5, t6,
-// 		t7, t8, t9;
+pixel 	t1, t2, t3,
+		t4, t5, t6,
+		t7, t8, t9;
 
-// t1 = in[0];
-// t2 = in[1];
-// t3 = in[2];
-// t4 = in[ncols];
-// t5 = in[ncols + 1];
-// t6 = in[ncols + 2];
-// t7 = in[ncols + ncols];
-// t8 = in[ncols + ncols + 1];
-// t9 = in[ncols + ncols + 2];
+int 	filt1, filt2, filt3,
+			filt4, filt5, filt6,
+			filt7, filt8, filt9;
+
+filt1 = filt[0];
+filt2 = filt[1];
+filt3 = filt[2];
+filt4 = filt[3];
+filt5 = filt[4];
+filt6 = filt[5];
+filt7 = filt[6];
+filt8 = filt[7];
+filt9 = filt[8];
+
+t1 = in[0];
+t2 = in[1];
+t3 = in[2];
+t4 = in[ncols];
+t5 = in[ncols + 1];
+t6 = in[ncols + 2];
+t7 = in[ncols + ncols];
+t8 = in[ncols + ncols + 1];
+t9 = in[ncols + ncols + 2];
 int bound;
 int ncols_sum = ncols + 1;
 for (int r = 1; r < nrows - 1; r++) {
@@ -240,102 +254,90 @@ for (int r = 1; r < nrows - 1; r++) {
     	//  .  .  .
     	//  .  .  .
     	//  x  .  .
-		uint x = ncols_sum + ncols - 1;
 
 		// one less operation here
 		
 		// Increment the accumulators
-		temp = filt[6];
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		// temp = filt[6];
+		sum_R += t7.R * filt7;
+		sum_G += t7.G * filt7;
+		sum_B += t7.B * filt7;
 		
 
 
 		//  .  .  .
     	//  .  .  .
     	//  .  x  .
-		++x;
-
-		temp = filt[7];
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		sum_R += t8.R * filt8;
+		sum_G += t8.G * filt8;
+		sum_B += t8.B * filt8;
 		
 
 		//  .  .  .
     	//  .  .  .
     	//  .  .  x
-		++x;
+		sum_R += t9.R * filt9;
+		sum_G += t9.G * filt9;
+		sum_B += t9.B * filt9;
 
-		temp = filt[8];
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
-
+		t7 = t8;
+		t8 = t9;
+		t9 = in[ncols_sum + ncols + 2];
 
 
 		//  .  .  .
     	//  x  .  .
     	//  .  .  .
-		x = ncols_sum -1;
-
-		temp = filt[3];
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		sum_R += t4.R * filt4;
+		sum_G += t4.G * filt4;
+		sum_B += t4.B * filt4;
 
 		//  .  .  .
     	//  .  x  .
     	//  .  .  .
-		++x;
-
-		temp = filt[4];
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		sum_R += t5.R * filt5;
+		sum_G += t5.G * filt5;
+		sum_B += t5.B * filt5;
 
 		//  .  .  .
     	//  .  .  x
     	//  .  .  .
-		++x;
+		sum_R += t6.R * filt6;
+		sum_G += t6.G * filt6;
+		sum_B += t6.B * filt6;
 
-		temp = filt[5];
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		t4 = t5;
+		t5 = t6;
+		t6 = in[ncols_sum + 2];
 		
 
 		//  x  .  .
     	//  .  .  .
     	//  .  .  .
-		x = ncols_sum - ncols - 1;
-
-		temp = filt[0];
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		sum_R += t1.R * filt1;
+		sum_G += t1.G * filt1;
+		sum_B += t1.B * filt1;
 		
 
 		//  .  x  .
     	//  .  .  .
     	//  .  .  .
-		++x;
-		temp = filt[1];
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		sum_R += t2.R * filt2;
+		sum_G += t2.G * filt2;
+		sum_B += t2.B * filt2;
 		
 
 
 		//  .  .  x
     	//  .  .  .
     	//  .  .  .		
-		++x;
-		temp = filt[2];
-		sum_R += in[x].R * temp;
-		sum_G += in[x].G * temp;
-		sum_B += in[x].B * temp;
+		sum_R += t3.R * filt3;
+		sum_G += t3.G * filt3;
+		sum_B += t3.B * filt3;
+
+		t1 = t2;
+		t2 = t3;
+		t3 = in[ncols_sum - ncols + 2];
 		
 
 		//printf("%d %d\n",ncols*r+c, ncols_sum);
@@ -348,4 +350,20 @@ for (int r = 1; r < nrows - 1; r++) {
     	//++ncols_sum;
 	}
 	ncols_sum+=2;
+
+	t1 = in[ncols_sum - ncols - 1];
+	t2 = in[ncols_sum - ncols];
+	t3 = in[ncols_sum - ncols + 1];
+
+	t4 = in[ncols_sum - 1];
+	t5 = in[ncols_sum];
+	t6 = in[ncols_sum + 1];
+
+	t7 = in[ncols_sum + ncols - 1];
+	t8 = in[ncols_sum + ncols];
+	t9 = in[ncols_sum + ncols + 1];	
+
+
+
+
 }
