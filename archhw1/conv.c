@@ -6,7 +6,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-#define NTRIALS 10
+#define NTRIALS 1
 
 #define FILTER_BYTES 10*sizeof(char)
 

@@ -241,12 +241,12 @@ int bound = 0;
 int old_bound = 0;
 for(int j = 0; j < niter; j++){
 	old_bound = bound + 1;
-	bound = (j + 1) * (8192 / 4) - 1; // so divides evenly
+	bound = (j + 1) * 2048 - 1; // so divides evenly
 	//printf("from [%d to %d)\n", old_bound, bound);
 
 for (int r = 1; r < nrows - 1; r++) {
 
-	for (int c = old_bound; c < bound; c++) {
+	for (int c = old_bound; c <= bound; c++) {
     	
     	uint sum_R = 0;
     	uint sum_G = 0;
@@ -257,12 +257,14 @@ for (int r = 1; r < nrows - 1; r++) {
     	//  .  .  .
     	//  .  .  .
     	//  x  .  .
-		uint x = ncols_sum + ncols - 1;
-		
+		//uint x = ncols_sum + ncols - 1;
+		uint x = r*ncols + ncols + c - 1;
+
 		// Increment the accumulators
 		sum_R += in[x].R * filt7;
 		sum_G += in[x].G * filt7;
 		sum_B += in[x].B * filt7;
+		//printf("%d\n", x);
 		
 		//  .  .  .
     	//  .  .  .
@@ -286,7 +288,8 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  .  .  .
     	//  x  .  .
     	//  .  .  .
-		x = ncols_sum -1;
+		//x = ncols_sum -1;
+		x = r*ncols + c - 1;
 		sum_R += in[x].R * filt4;
 		sum_G += in[x].G * filt4;
 		sum_B += in[x].B * filt4;
@@ -311,7 +314,8 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  x  .  .
     	//  .  .  .
     	//  .  .  .
-		x = ncols_sum - ncols - 1;
+		x = r*ncols - ncols + c - 1;
+		//printf("%d\n", x);
 		sum_R += in[x].R * filt1;
 		sum_G += in[x].G * filt1;
 		sum_B += in[x].B * filt1;
@@ -334,14 +338,19 @@ for (int r = 1; r < nrows - 1; r++) {
 		sum_R += in[x].R * filt3;
 		sum_G += in[x].G * filt3;
 		sum_B += in[x].B * filt3;
+		//printf("c:%d sum:%d \n", c, ncols_sum);
+
+		x = r*ncols + c;
 		
-    	out[ncols_sum].R = (float) sum_R / d;
-    	out[ncols_sum].G = (float) sum_G / d;
-    	out[ncols_sum].B = (float) sum_B / d;
+    	// out[ncols_sum].R = (float) sum_R / d;
+    	// out[ncols_sum].G = (float) sum_G / d;
+    	// out[ncols_sum].B = (float) sum_B / d;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
     	++ncols_sum;
 	}
-	ncols_sum = old_ncols_sum + ncols;
-	old_ncols_sum = ncols_sum;
+	ncols_sum = r*ncols_sum + old_bound;
 }
 }
 
@@ -351,7 +360,7 @@ ncols_sum = 0;
 for (int r = 1; r < nrows - 1; r++) {
 	for (int c = bound; c < ncols - 1; c++) {
     	
-    	uint sum_R = 0;
+    uint sum_R = 0;
     	uint sum_G = 0;
     	uint sum_B = 0;
 
