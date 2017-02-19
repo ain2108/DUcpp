@@ -225,6 +225,7 @@ filt8 = filt[7];
 filt9 = filt[8];
 int bound;
 int ncols_sum = ncols + 1;
+int old_ncols_sum = ncols_sum;
 for (int r = 1; r < nrows - 1; r++) {
 	bound = ncols_sum + ncols - 2;
 	for (; ncols_sum < bound; ncols_sum++) {
@@ -239,8 +240,6 @@ for (int r = 1; r < nrows - 1; r++) {
     	//  .  .  .
     	//  x  .  .
 		uint x = ncols_sum + ncols - 1;
-
-		// one less operation here
 		
 		// Increment the accumulators
 		sum_R += in[x].R * filt7;
@@ -272,7 +271,6 @@ for (int r = 1; r < nrows - 1; r++) {
     	//  x  .  .
     	//  .  .  .
 		x = ncols_sum -1;
-
 		sum_R += in[x].R * filt4;
 		sum_G += in[x].G * filt4;
 		sum_B += in[x].B * filt4;
@@ -281,7 +279,6 @@ for (int r = 1; r < nrows - 1; r++) {
     	//  .  x  .
     	//  .  .  .
 		++x;
-
 		sum_R += in[x].R * filt5;
 		sum_G += in[x].G * filt5;
 		sum_B += in[x].B * filt5;
@@ -290,7 +287,6 @@ for (int r = 1; r < nrows - 1; r++) {
     	//  .  .  x
     	//  .  .  .
 		++x;
-
 		sum_R += in[x].R * filt6;
 		sum_G += in[x].G * filt6;
 		sum_B += in[x].B * filt6;
@@ -300,7 +296,6 @@ for (int r = 1; r < nrows - 1; r++) {
     	//  .  .  .
     	//  .  .  .
 		x = ncols_sum - ncols - 1;
-
 		sum_R += in[x].R * filt1;
 		sum_G += in[x].G * filt1;
 		sum_B += in[x].B * filt1;
@@ -324,15 +319,11 @@ for (int r = 1; r < nrows - 1; r++) {
 		sum_G += in[x].G * filt3;
 		sum_B += in[x].B * filt3;
 		
-
-		//printf("%d %d\n",ncols*r+c, ncols_sum);
-    	//x = ncols_sum;
-  
-
     	out[ncols_sum].R = (float) sum_R / d;
     	out[ncols_sum].G = (float) sum_G / d;
     	out[ncols_sum].B = (float) sum_B / d;
     	//++ncols_sum;
 	}
-	ncols_sum+=2;
+	ncols_sum = old_ncols_sum + ncols;
+	old_ncols_sum = ncols_sum;
 }
