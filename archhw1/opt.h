@@ -348,9 +348,9 @@ for (int r = 1; r < nrows - 1; r++) {
     	out[x].R = (float) sum_R / d;
     	out[x].G = (float) sum_G / d;
     	out[x].B = (float) sum_B / d;
-    	++ncols_sum;
+    	//++ncols_sum;
 	}
-	ncols_sum = r*ncols_sum + old_bound;
+	//ncols_sum = r*ncols_sum + old_bound;
 }
 }
 
@@ -460,10 +460,10 @@ for (int r = 1; r < nrows - 1; r++) {
     	out[x].R = (float) sum_R / d;
     	out[x].G = (float) sum_G / d;
     	out[x].B = (float) sum_B / d;
-    	++ncols_sum;
+    	//++ncols_sum;
 	}
-	ncols_sum = old_ncols_sum + ncols;
-	old_ncols_sum = ncols_sum;
+	//ncols_sum = old_ncols_sum + ncols;
+	//old_ncols_sum = ncols_sum;
 }
 
 }else{
