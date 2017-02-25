@@ -5,6 +5,7 @@
 //#include "time.h"
 #include <sys/time.h>
 #include <unistd.h>
+#include <time.h>
 
 #define NTRIALS 20
 
@@ -44,33 +45,33 @@ char* random_filter() {
 
   switch (rand() % 4) {
   case 0:  // identity
-  k[0] = 0; k[1] = 0; k[2] = 0;
-  k[3] = 0; k[4] = 1; k[5] = 0;
-  k[6] = 0; k[7] = 0; k[8] = 0;
-  k[9] = 1;
-  return k;
+    k[0] = 0; k[1] = 0; k[2] = 0;
+    k[3] = 0; k[4] = 1; k[5] = 0;
+    k[6] = 0; k[7] = 0; k[8] = 0;
+    k[9] = 1;
+    return k;
   case 1:  // edge detection
-  k[0] = -1; k[1] = -1; k[2] = -1;
-  k[3] = -1; k[4] =  8; k[5] = -1;
-  k[6] = -1; k[7] = -1; k[8] = -1;
-  k[9] = 1;
-  return k;
+    k[0] = -1; k[1] = -1; k[2] = -1;
+    k[3] = -1; k[4] =  8; k[5] = -1;
+    k[6] = -1; k[7] = -1; k[8] = -1;
+    k[9] = 1;
+    return k;
   case 2:  // sharpen
-  k[0] =  0; k[1] = -1; k[2] =  0;
-  k[3] = -1; k[4] =  5; k[5] = -1;
-  k[6] =  0; k[7] = -1; k[8] =  0;
-  k[9] = 1;
-  return k;
+    k[0] =  0; k[1] = -1; k[2] =  0;
+    k[3] = -1; k[4] =  5; k[5] = -1;
+    k[6] =  0; k[7] = -1; k[8] =  0;
+    k[9] = 1;
+    return k;
   case 3:  // gaussian blur
-  k[0] =  1; k[1] =  2; k[2] =  1;
-  k[3] =  2; k[4] =  4; k[5] =  2;
-  k[6] =  1; k[7] =  2; k[8] =  1;
-  k[9] = 16;
-  return k;
+    k[0] =  1; k[1] =  2; k[2] =  1;
+    k[3] =  2; k[4] =  4; k[5] =  2;
+    k[6] =  1; k[7] =  2; k[8] =  1;
+    k[9] = 16;
+    return k;
   default: 
-  assert(0);
-}  
-return 0;
+    assert(0);
+  }  
+  return 0;
 }
 
 void print_image(pixel* img, uint nrows, uint ncols) {
@@ -114,36 +115,29 @@ void conv_ref(uint nrows, uint ncols, pixel* in, char* filt, pixel* out) {
       uint sum_B = 0;
 
       for (int dc = -1; dc <= 1; dc++) {
-       for (int dr = -1; dr <= 1; dr++) {
+      for (int dr = -1; dr <= 1; dr++) {
+        int cc = c+dc;
+        int rr = r+dr;
+        if (rr >= 0 && cc >= 0 && rr < nrows && cc < ncols) {
+          uint x = ncols*rr+cc;
+          uint y = 3*(dc+1)+(dr+1);
+          assert(x < ncols*nrows);
+          assert(y < FILTER_BYTES);
+          sum_R += in[x].R * filt[y];
+          sum_G += in[x].G * filt[y];
+          sum_B += in[x].B * filt[y];
+        }
+      }
+      }
 
-         // Row and column of convolution sum term 
-         int cc = c+dc;
-         int rr = r+dr;
+      uint x = ncols*r+c;
+      uchar d = filt[FILTER_BYTES-1];
+      out[x].R = (float) sum_R / d;
+      out[x].G = (float) sum_G / d;
+      out[x].B = (float) sum_B / d;
 
-         if (rr >= 0 && cc >= 0 && rr < nrows && cc < ncols) {
-           
-           // The address in the array of the sum term
-           uint x = ncols*rr+cc;
-
-           // Address of the multiplier in the filter
-           uint y = 3*(dc+1)+(dr+1);
-           assert(x < ncols*nrows);
-           assert(y < FILTER_BYTES);
-           sum_R += in[x].R * filt[y];
-           sum_G += in[x].G * filt[y];
-           sum_B += in[x].B * filt[y];
-         }
-       }
-     }
-
-     uint x = ncols*r+c;
-     uchar d = filt[FILTER_BYTES-1];
-     out[x].R = (float) sum_R / d;
-     out[x].G = (float) sum_G / d;
-     out[x].B = (float) sum_B / d;
-
-   }
- }
+    }
+  }
 }
 
 void conv_opt(uint nrows, uint ncols, pixel* in, char* filt, pixel* out) {
@@ -159,6 +153,11 @@ ulong curr_ms() {
   return ms;
 }
 
+// given two clock tick markers, returns number of 
+// seconds between start and end
+double cpu_time_used(clock_t start, clock_t end){
+  return ((double)(end-start)) / CLOCKS_PER_SEC;
+}
 
 int main(int argc, char** argv) {
   // check command line
@@ -182,9 +181,10 @@ int main(int argc, char** argv) {
 
     uint image_bytes = nrows*ncols*sizeof(pixel);
 
-    unsigned long sum_ref = 0;
-    unsigned long sum_opt = 0;
-    ulong start, stop;
+    double sum_ref = 0;
+    double sum_opt = 0;
+    clock_t start;
+    clock_t stop;
     for (int j = 0; j < NTRIALS; j++) {
 
       // create random input image, one copy for each version
@@ -202,16 +202,16 @@ int main(int argc, char** argv) {
       pixel* out_opt = alloc_image(nrows,ncols);
 
       // run reference 
-      start = curr_ms();
+      start = clock();
       conv_ref(nrows,ncols,in_ref,filt_ref,out_ref);
-      stop = curr_ms();
-      sum_ref += (stop-start);
-
+      stop = clock();
+      sum_ref += cpu_time_used(start, stop);
+  
       // run optimized
-      start = curr_ms();
+      start = clock();
       conv_opt(nrows,ncols,in_opt,filt_opt,out_opt);
-      stop = curr_ms();
-      sum_opt += (stop-start);
+      stop = clock();
+      sum_opt += cpu_time_used(start, stop);
 
       // check correctness of the optimized version 
       assert(memcmp(in_ref,in_opt,image_bytes) == 0);
@@ -228,10 +228,10 @@ int main(int argc, char** argv) {
     }
     
     // report times and speedup
-    ulong ref_ms = sum_ref/NTRIALS;
-    ulong opt_ms = sum_opt/NTRIALS;
+    double ref_ms = sum_ref/NTRIALS * 1000; //sec to msec
+    double opt_ms = sum_opt/NTRIALS * 1000;
     float speedup = (float)ref_ms/opt_ms;
-    printf("%4d x %4d\t%lu\t%lu\t%.2f\n",nrows,ncols,ref_ms,opt_ms,speedup);
+    printf("%4d x %4d\t%.2f\t%.2f\t%.2f\n",nrows,ncols,ref_ms,opt_ms,speedup);
 
     // accmulate average
     speedup_sum += speedup;
