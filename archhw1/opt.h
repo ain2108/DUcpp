@@ -1535,7 +1535,787 @@ for (int r = 1; r < nrows - 1; r++) {
 }
 }
 	return;
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+////////////////////////// GAUSSIAN //////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+}else if(filt[4] == 4){
+printf("took gaussian\n");
+int ncols_sum = ncols + 1;
+int old_ncols_sum = ncols_sum;
+
+
+int bytes_used = ncols * sizeof(pixel);
+int niter = bytes_used / 8192;
+int cols_left = 0;
+
+/* If the picture does not fit in the cache */
+if(niter != 0){
+	cols_left = bytes_used % 8192;
+
+//fprintf(stderr, "iter: %d leftover: %d\n", niter, cols_left);
+int bound = 0;
+int old_bound = 0;
+for(int j = 0; j < niter; j++){
+	old_bound = bound + 1;
+	bound = (j + 1) * 2048 - 1; // so divides evenly
+	//printf("from [%d to %d)\n", old_bound, bound);
+
+for (int r = 1; r < nrows - 1; r++) {
+
+	for (int c = old_bound; c <= bound; c++) {
+    	
+    	uint sum_R = 0;
+    	uint sum_G = 0;
+    	uint sum_B = 0;
+      	
+    	//  .  .  .
+    	//  .  .  .
+    	//  x  .  .
+		//uint x = ncols_sum + ncols - 1;
+		uint x = r*ncols + ncols + c - 1;
+
+		// Increment the accumulators
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		//printf("%d\n", x);
+		
+		//  .  .  .
+    	//  .  .  .
+    	//  .  x  .
+		++x;
+		sum_R += in[x].R * 2; 
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		
+
+		//  .  .  .
+    	//  .  .  .
+    	//  .  .  x
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+
+
+
+		//  .  .  .
+    	//  x  .  .
+    	//  .  .  .
+		//x = ncols_sum -1;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+
+		//  .  .  .
+    	//  .  x  .
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * 4;
+		sum_G += in[x].G * 4;
+		sum_B += in[x].B * 4;
+
+		//  .  .  .
+    	//  .  .  x
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		
+
+		//  x  .  .
+    	//  .  .  .
+    	//  .  .  .
+		x = r*ncols - ncols + c - 1;
+		//printf("%d\n", x);
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		
+
+		//  .  x  .
+    	//  .  .  .
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		
+
+
+		//  .  .  x
+    	//  .  .  .
+    	//  .  .  .		
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		//printf("c:%d sum:%d \n", c, ncols_sum);
+
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+	}
 }
+}
+
+//ncols_sum = ncols + bound + 1;
+ncols_sum = 0;
+//printf("from [%d to %d)\n", bound, ncols - 1);
+for (int r = 1; r < nrows - 1; r++) {
+	for (int c = bound; c < ncols - 1; c++) {
+    	
+    uint sum_R = 0;
+    	uint sum_G = 0;
+    	uint sum_B = 0;
+
+    	/* Unrolling the loop */
+      	
+    	//  .  .  .
+    	//  .  .  .
+    	//  x  .  .
+		//uint x = ncols_sum + ncols - 1;
+		uint x = r*ncols + ncols + c - 1;
+
+		// Increment the accumulators
+		sum_R += in[x].R * filt7;
+		sum_G += in[x].G * filt7;
+		sum_B += in[x].B * filt7;
+		//printf("%d\n", x);
+		
+		//  .  .  .
+    	//  .  .  .
+    	//  .  x  .
+		++x;
+		sum_R += in[x].R * filt8;
+		sum_G += in[x].G * filt8;
+		sum_B += in[x].B * filt8;
+		
+
+		//  .  .  .
+    	//  .  .  .
+    	//  .  .  x
+		++x;
+		sum_R += in[x].R * filt9;
+		sum_G += in[x].G * filt9;
+		sum_B += in[x].B * filt9;
+
+
+
+		//  .  .  .
+    	//  x  .  .
+    	//  .  .  .
+		//x = ncols_sum -1;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * filt4;
+		sum_G += in[x].G * filt4;
+		sum_B += in[x].B * filt4;
+
+		//  .  .  .
+    	//  .  x  .
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * filt5;
+		sum_G += in[x].G * filt5;
+		sum_B += in[x].B * filt5;
+
+		//  .  .  .
+    	//  .  .  x
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * filt6;
+		sum_G += in[x].G * filt6;
+		sum_B += in[x].B * filt6;
+		
+
+		//  x  .  .
+    	//  .  .  .
+    	//  .  .  .
+		x = r*ncols - ncols + c - 1;
+		//printf("%d\n", x);
+		sum_R += in[x].R * filt1;
+		sum_G += in[x].G * filt1;
+		sum_B += in[x].B * filt1;
+		
+
+		//  .  x  .
+    	//  .  .  .
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * filt2;
+		sum_G += in[x].G * filt2;
+		sum_B += in[x].B * filt2;
+		
+
+
+		//  .  .  x
+    	//  .  .  .
+    	//  .  .  .		
+		++x;
+		sum_R += in[x].R * filt3;
+		sum_G += in[x].G * filt3;
+		sum_B += in[x].B * filt3;
+		//printf("c:%d sum:%d \n", c, ncols_sum);
+
+		x = r*ncols + c;
+		
+    	// out[ncols_sum].R = (float) sum_R / d;
+    	// out[ncols_sum].G = (float) sum_G / d;
+    	// out[ncols_sum].B = (float) sum_B / d;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	//++ncols_sum;
+	}
+	//ncols_sum = old_ncols_sum + ncols;
+	//old_ncols_sum = ncols_sum;
+}
+
+}else{
+	//printf("Doing normal\n");
+	
+	int unrolled_iterations = ((ncols - 2) / UNROLLING_FACTOR) * UNROLLING_FACTOR;
+	//printf("%d\n", unrolled_iterations);
+	for (int r = 1; r < nrows - 1; r++) {
+
+	int c;
+	for (c = 1; c < unrolled_iterations + 1; c++) {
+    	
+    	uint sum_R = 0;
+    	uint sum_G = 0;
+    	uint sum_B = 0;
+
+    	//  .  .  .
+    	//  .  .  .
+    	//  x  .  .
+		//uint x = ncols_sum + ncols - 1;
+		uint x = r*ncols + ncols + c - 1;
+
+		// Increment the accumulators
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		//printf("%d\n", x);
+		
+		//  .  .  .
+    	//  .  .  .
+    	//  .  x  .
+		++x;
+		sum_R += in[x].R * 2; 
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		
+
+		//  .  .  .
+    	//  .  .  .
+    	//  .  .  x
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+
+
+
+		//  .  .  .
+    	//  x  .  .
+    	//  .  .  .
+		//x = ncols_sum -1;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+
+		//  .  .  .
+    	//  .  x  .
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * 4;
+		sum_G += in[x].G * 4;
+		sum_B += in[x].B * 4;
+
+		//  .  .  .
+    	//  .  .  x
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		
+
+		//  x  .  .
+    	//  .  .  .
+    	//  .  .  .
+		x = r*ncols - ncols + c - 1;
+		//printf("%d\n", x);
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		
+
+		//  .  x  .
+    	//  .  .  .
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		
+
+
+		//  .  .  x
+    	//  .  .  .
+    	//  .  .  .		
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		//printf("c:%d sum:%d \n", c, ncols_sum);
+
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2; 
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R * 4;
+		sum_G += in[x].G * 4;
+		sum_B += in[x].B * 4;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;	
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2; 
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R * 4;
+		sum_G += in[x].G * 4;
+		sum_B += in[x].B * 4;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;	
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2; 
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R * 4;
+		sum_G += in[x].G * 4;
+		sum_B += in[x].B * 4;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;	
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2; 
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R * 4;
+		sum_G += in[x].G * 4;
+		sum_B += in[x].B * 4;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;	
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2; 
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R * 4;
+		sum_G += in[x].G * 4;
+		sum_B += in[x].B * 4;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;	
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2; 
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R * 4;
+		sum_G += in[x].G * 4;
+		sum_B += in[x].B * 4;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;	
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2; 
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		++x;
+		sum_R += in[x].R * 4;
+		sum_G += in[x].G * 4;
+		sum_B += in[x].B * 4;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;	
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+	}
+
+	//printf("c: %d\n", c);
+	for (int c = unrolled_iterations + 1; c < ncols - 1; c++) {
+    	
+    	uint sum_R = 0;
+    	uint sum_G = 0;
+    	uint sum_B = 0;
+
+    	//  .  .  .
+    	//  .  .  .
+    	//  x  .  .
+		//uint x = ncols_sum + ncols - 1;
+		uint x = r*ncols + ncols + c - 1;
+
+		// Increment the accumulators
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		//printf("%d\n", x);
+		
+		//  .  .  .
+    	//  .  .  .
+    	//  .  x  .
+		++x;
+		sum_R += in[x].R * 2; 
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		
+
+		//  .  .  .
+    	//  .  .  .
+    	//  .  .  x
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+
+
+
+		//  .  .  .
+    	//  x  .  .
+    	//  .  .  .
+		//x = ncols_sum -1;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+
+		//  .  .  .
+    	//  .  x  .
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * 4;
+		sum_G += in[x].G * 4;
+		sum_B += in[x].B * 4;
+
+		//  .  .  .
+    	//  .  .  x
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		
+
+		//  x  .  .
+    	//  .  .  .
+    	//  .  .  .
+		x = r*ncols - ncols + c - 1;
+		//printf("%d\n", x);
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		
+
+		//  .  x  .
+    	//  .  .  .
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * 2;
+		sum_G += in[x].G * 2;
+		sum_B += in[x].B * 2;
+		
+
+
+		//  .  .  x
+    	//  .  .  .
+    	//  .  .  .		
+		++x;
+		sum_R += in[x].R;
+		sum_G += in[x].G;
+		sum_B += in[x].B;
+		//printf("c:%d sum:%d \n", c, ncols_sum);
+
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+
+	}
+}
+}
+	return;
+}
+
+
+
+
+
+
+
+
+
+
 
 
 int ncols_sum = ncols + 1;
@@ -2298,9 +3078,6 @@ for (int r = 1; r < nrows - 1; r++) {
 
 		x = r*ncols + c;
 		
-    	// out[ncols_sum].R = (float) sum_R / d;
-    	// out[ncols_sum].G = (float) sum_G / d;
-    	// out[ncols_sum].B = (float) sum_B / d;
     	out[x].R = (float) sum_R / d;
     	out[x].G = (float) sum_G / d;
     	out[x].B = (float) sum_B / d;
