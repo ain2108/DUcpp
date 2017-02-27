@@ -12,7 +12,7 @@
 #define UNROLLING_FACTOR 8
 
 if(filt[4] == 1){
-	printf("took shortcut\n");
+	//printf("took shortcut\n");
 	memcpy(out, in, ncols*nrows*sizeof(pixel));
 	return;
 }
@@ -283,7 +283,7 @@ conditionals inside the loop anymore. */
 //////////////////////////////////////////////////////////////
 if(filt[4] == 5){
 
-printf("took the edge\n");
+//printf("took the edge\n");
 
 int ncols_sum = ncols + 1;
 int old_ncols_sum = ncols_sum;
@@ -786,7 +786,7 @@ return;
 /* Sharpen filter optimizatin */
 }else if(filt[4] == 8){
 
-printf("took the sharpen\n");
+//printf("took the sharpen\n");
 
 	int ncols_sum = ncols + 1;
 int old_ncols_sum = ncols_sum;
@@ -1014,7 +1014,7 @@ for (int r = 1; r < nrows - 1; r++) {
 
 }else{
 	//printf("Doing normal\n");
-	printf("%d\n",d);
+	//printf("%d\n",d);
 	int unrolled_iterations = ((ncols - 2) / UNROLLING_FACTOR) * UNROLLING_FACTOR;
 	//printf("%d\n", unrolled_iterations);
 	for (int r = 1; r < nrows - 1; r++) {
@@ -1546,7 +1546,7 @@ for (int r = 1; r < nrows - 1; r++) {
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 }else if(filt[4] == 4){
-printf("took gaussian\n");
+//printf("took gaussian\n");
 int ncols_sum = ncols + 1;
 int old_ncols_sum = ncols_sum;
 
