@@ -469,7 +469,7 @@ for (int r = 1; r < nrows - 1; r++) {
 
 }else{
 	//printf("Doing normal\n");
-	pixel t;
+	register pixel t;
 	int unrolled_iterations = ((ncols - 2) / UNROLLING_FACTOR) * UNROLLING_FACTOR;
 	//printf("%d\n", unrolled_iterations);
 	for (int r = 1; r < nrows - 1; r++) {
