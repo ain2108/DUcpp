@@ -9,6 +9,7 @@
 // Fix the top border
 
 #define CACHE_SIZE 32768
+#define UNROLLING_FACTOR 8
 
 const uchar d = filt[FILTER_BYTES-1];
 for (int c = 0; c < ncols; c++) {
@@ -468,9 +469,13 @@ for (int r = 1; r < nrows - 1; r++) {
 
 }else{
 	//printf("Doing normal\n");
+	
+	int unrolled_iterations = ((ncols - 2) / UNROLLING_FACTOR) * UNROLLING_FACTOR;
+	//printf("%d\n", unrolled_iterations);
 	for (int r = 1; r < nrows - 1; r++) {
 
-	for (int c = 1; c < ncols - 1; c++) {
+	int c;
+	for (c = 1; c < unrolled_iterations + 1; c++) {
     	
     	uint sum_R = 0;
     	uint sum_G = 0;
@@ -481,12 +486,14 @@ for (int r = 1; r < nrows - 1; r++) {
     	//  .  .  .
     	//  .  .  .
     	//  x  .  .
-		uint x = ncols_sum + ncols - 1;
-		
+		//uint x = ncols_sum + ncols - 1;
+		uint x = r*ncols + ncols + c - 1;
+
 		// Increment the accumulators
 		sum_R += in[x].R * filt7;
 		sum_G += in[x].G * filt7;
 		sum_B += in[x].B * filt7;
+		//printf("%d\n", x);
 		
 		//  .  .  .
     	//  .  .  .
@@ -510,7 +517,8 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  .  .  .
     	//  x  .  .
     	//  .  .  .
-		x = ncols_sum -1;
+		//x = ncols_sum -1;
+		x = r*ncols + c - 1;
 		sum_R += in[x].R * filt4;
 		sum_G += in[x].G * filt4;
 		sum_B += in[x].B * filt4;
@@ -535,7 +543,8 @@ for (int r = 1; r < nrows - 1; r++) {
 		//  x  .  .
     	//  .  .  .
     	//  .  .  .
-		x = ncols_sum - ncols - 1;
+		x = r*ncols - ncols + c - 1;
+		//printf("%d\n", x);
 		sum_R += in[x].R * filt1;
 		sum_G += in[x].G * filt1;
 		sum_B += in[x].B * filt1;
@@ -558,14 +567,443 @@ for (int r = 1; r < nrows - 1; r++) {
 		sum_R += in[x].R * filt3;
 		sum_G += in[x].G * filt3;
 		sum_B += in[x].B * filt3;
+		//printf("c:%d sum:%d \n", c, ncols_sum);
+
+		x = r*ncols + c;
 		
-    	out[ncols_sum].R = (float) sum_R / d;
-    	out[ncols_sum].G = (float) sum_G / d;
-    	out[ncols_sum].B = (float) sum_B / d;
-    	++ncols_sum;
+    	// out[ncols_sum].R = (float) sum_R / d;
+    	// out[ncols_sum].G = (float) sum_G / d;
+    	// out[ncols_sum].B = (float) sum_B / d;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+		x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R * filt7;
+		sum_G += in[x].G * filt7;
+		sum_B += in[x].B * filt7;
+		++x;
+		sum_R += in[x].R * filt8;
+		sum_G += in[x].G * filt8;
+		sum_B += in[x].B * filt8;
+		++x;
+		sum_R += in[x].R * filt9;
+		sum_G += in[x].G * filt9;
+		sum_B += in[x].B * filt9;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * filt4;
+		sum_G += in[x].G * filt4;
+		sum_B += in[x].B * filt4;
+		++x;
+		sum_R += in[x].R * filt5;
+		sum_G += in[x].G * filt5;
+		sum_B += in[x].B * filt5;
+		++x;
+		sum_R += in[x].R * filt6;
+		sum_G += in[x].G * filt6;
+		sum_B += in[x].B * filt6;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R * filt1;
+		sum_G += in[x].G * filt1;
+		sum_B += in[x].B * filt1;
+		++x;
+		sum_R += in[x].R * filt2;
+		sum_G += in[x].G * filt2;
+		sum_B += in[x].B * filt2;
+		++x;
+		sum_R += in[x].R * filt3;
+		sum_G += in[x].G * filt3;
+		sum_B += in[x].B * filt3;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+		x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R * filt7;
+		sum_G += in[x].G * filt7;
+		sum_B += in[x].B * filt7;
+		++x;
+		sum_R += in[x].R * filt8;
+		sum_G += in[x].G * filt8;
+		sum_B += in[x].B * filt8;
+		++x;
+		sum_R += in[x].R * filt9;
+		sum_G += in[x].G * filt9;
+		sum_B += in[x].B * filt9;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * filt4;
+		sum_G += in[x].G * filt4;
+		sum_B += in[x].B * filt4;
+		++x;
+		sum_R += in[x].R * filt5;
+		sum_G += in[x].G * filt5;
+		sum_B += in[x].B * filt5;
+		++x;
+		sum_R += in[x].R * filt6;
+		sum_G += in[x].G * filt6;
+		sum_B += in[x].B * filt6;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R * filt1;
+		sum_G += in[x].G * filt1;
+		sum_B += in[x].B * filt1;
+		++x;
+		sum_R += in[x].R * filt2;
+		sum_G += in[x].G * filt2;
+		sum_B += in[x].B * filt2;
+		++x;
+		sum_R += in[x].R * filt3;
+		sum_G += in[x].G * filt3;
+		sum_B += in[x].B * filt3;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+		x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R * filt7;
+		sum_G += in[x].G * filt7;
+		sum_B += in[x].B * filt7;
+		++x;
+		sum_R += in[x].R * filt8;
+		sum_G += in[x].G * filt8;
+		sum_B += in[x].B * filt8;
+		++x;
+		sum_R += in[x].R * filt9;
+		sum_G += in[x].G * filt9;
+		sum_B += in[x].B * filt9;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * filt4;
+		sum_G += in[x].G * filt4;
+		sum_B += in[x].B * filt4;
+		++x;
+		sum_R += in[x].R * filt5;
+		sum_G += in[x].G * filt5;
+		sum_B += in[x].B * filt5;
+		++x;
+		sum_R += in[x].R * filt6;
+		sum_G += in[x].G * filt6;
+		sum_B += in[x].B * filt6;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R * filt1;
+		sum_G += in[x].G * filt1;
+		sum_B += in[x].B * filt1;
+		++x;
+		sum_R += in[x].R * filt2;
+		sum_G += in[x].G * filt2;
+		sum_B += in[x].B * filt2;
+		++x;
+		sum_R += in[x].R * filt3;
+		sum_G += in[x].G * filt3;
+		sum_B += in[x].B * filt3;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+		x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R * filt7;
+		sum_G += in[x].G * filt7;
+		sum_B += in[x].B * filt7;
+		++x;
+		sum_R += in[x].R * filt8;
+		sum_G += in[x].G * filt8;
+		sum_B += in[x].B * filt8;
+		++x;
+		sum_R += in[x].R * filt9;
+		sum_G += in[x].G * filt9;
+		sum_B += in[x].B * filt9;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * filt4;
+		sum_G += in[x].G * filt4;
+		sum_B += in[x].B * filt4;
+		++x;
+		sum_R += in[x].R * filt5;
+		sum_G += in[x].G * filt5;
+		sum_B += in[x].B * filt5;
+		++x;
+		sum_R += in[x].R * filt6;
+		sum_G += in[x].G * filt6;
+		sum_B += in[x].B * filt6;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R * filt1;
+		sum_G += in[x].G * filt1;
+		sum_B += in[x].B * filt1;
+		++x;
+		sum_R += in[x].R * filt2;
+		sum_G += in[x].G * filt2;
+		sum_B += in[x].B * filt2;
+		++x;
+		sum_R += in[x].R * filt3;
+		sum_G += in[x].G * filt3;
+		sum_B += in[x].B * filt3;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+		x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R * filt7;
+		sum_G += in[x].G * filt7;
+		sum_B += in[x].B * filt7;
+		++x;
+		sum_R += in[x].R * filt8;
+		sum_G += in[x].G * filt8;
+		sum_B += in[x].B * filt8;
+		++x;
+		sum_R += in[x].R * filt9;
+		sum_G += in[x].G * filt9;
+		sum_B += in[x].B * filt9;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * filt4;
+		sum_G += in[x].G * filt4;
+		sum_B += in[x].B * filt4;
+		++x;
+		sum_R += in[x].R * filt5;
+		sum_G += in[x].G * filt5;
+		sum_B += in[x].B * filt5;
+		++x;
+		sum_R += in[x].R * filt6;
+		sum_G += in[x].G * filt6;
+		sum_B += in[x].B * filt6;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R * filt1;
+		sum_G += in[x].G * filt1;
+		sum_B += in[x].B * filt1;
+		++x;
+		sum_R += in[x].R * filt2;
+		sum_G += in[x].G * filt2;
+		sum_B += in[x].B * filt2;
+		++x;
+		sum_R += in[x].R * filt3;
+		sum_G += in[x].G * filt3;
+		sum_B += in[x].B * filt3;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+		x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R * filt7;
+		sum_G += in[x].G * filt7;
+		sum_B += in[x].B * filt7;
+		++x;
+		sum_R += in[x].R * filt8;
+		sum_G += in[x].G * filt8;
+		sum_B += in[x].B * filt8;
+		++x;
+		sum_R += in[x].R * filt9;
+		sum_G += in[x].G * filt9;
+		sum_B += in[x].B * filt9;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * filt4;
+		sum_G += in[x].G * filt4;
+		sum_B += in[x].B * filt4;
+		++x;
+		sum_R += in[x].R * filt5;
+		sum_G += in[x].G * filt5;
+		sum_B += in[x].B * filt5;
+		++x;
+		sum_R += in[x].R * filt6;
+		sum_G += in[x].G * filt6;
+		sum_B += in[x].B * filt6;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R * filt1;
+		sum_G += in[x].G * filt1;
+		sum_B += in[x].B * filt1;
+		++x;
+		sum_R += in[x].R * filt2;
+		sum_G += in[x].G * filt2;
+		sum_B += in[x].B * filt2;
+		++x;
+		sum_R += in[x].R * filt3;
+		sum_G += in[x].G * filt3;
+		sum_B += in[x].B * filt3;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+		x = r*ncols + ncols + c - 1;
+		sum_R += in[x].R * filt7;
+		sum_G += in[x].G * filt7;
+		sum_B += in[x].B * filt7;
+		++x;
+		sum_R += in[x].R * filt8;
+		sum_G += in[x].G * filt8;
+		sum_B += in[x].B * filt8;
+		++x;
+		sum_R += in[x].R * filt9;
+		sum_G += in[x].G * filt9;
+		sum_B += in[x].B * filt9;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * filt4;
+		sum_G += in[x].G * filt4;
+		sum_B += in[x].B * filt4;
+		++x;
+		sum_R += in[x].R * filt5;
+		sum_G += in[x].G * filt5;
+		sum_B += in[x].B * filt5;
+		++x;
+		sum_R += in[x].R * filt6;
+		sum_G += in[x].G * filt6;
+		sum_B += in[x].B * filt6;
+		x = r*ncols - ncols + c - 1;
+		sum_R += in[x].R * filt1;
+		sum_G += in[x].G * filt1;
+		sum_B += in[x].B * filt1;
+		++x;
+		sum_R += in[x].R * filt2;
+		sum_G += in[x].G * filt2;
+		sum_B += in[x].B * filt2;
+		++x;
+		sum_R += in[x].R * filt3;
+		sum_G += in[x].G * filt3;
+		sum_B += in[x].B * filt3;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
 	}
-	ncols_sum = old_ncols_sum + ncols;
-	old_ncols_sum = ncols_sum;
+
+	//printf("c: %d\n", c);
+	for (int c = unrolled_iterations + 1; c < ncols - 1; c++) {
+    	
+    	uint sum_R = 0;
+    	uint sum_G = 0;
+    	uint sum_B = 0;
+
+    	/* Unrolling the loop */
+      	
+    	//  .  .  .
+    	//  .  .  .
+    	//  x  .  .
+		//uint x = ncols_sum + ncols - 1;
+		uint x = r*ncols + ncols + c - 1;
+
+		// Increment the accumulators
+		sum_R += in[x].R * filt7;
+		sum_G += in[x].G * filt7;
+		sum_B += in[x].B * filt7;
+		//printf("%d\n", x);
+		
+		//  .  .  .
+    	//  .  .  .
+    	//  .  x  .
+		++x;
+		sum_R += in[x].R * filt8;
+		sum_G += in[x].G * filt8;
+		sum_B += in[x].B * filt8;
+		
+
+		//  .  .  .
+    	//  .  .  .
+    	//  .  .  x
+		++x;
+		sum_R += in[x].R * filt9;
+		sum_G += in[x].G * filt9;
+		sum_B += in[x].B * filt9;
+
+
+
+		//  .  .  .
+    	//  x  .  .
+    	//  .  .  .
+		//x = ncols_sum -1;
+		x = r*ncols + c - 1;
+		sum_R += in[x].R * filt4;
+		sum_G += in[x].G * filt4;
+		sum_B += in[x].B * filt4;
+
+		//  .  .  .
+    	//  .  x  .
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * filt5;
+		sum_G += in[x].G * filt5;
+		sum_B += in[x].B * filt5;
+
+		//  .  .  .
+    	//  .  .  x
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * filt6;
+		sum_G += in[x].G * filt6;
+		sum_B += in[x].B * filt6;
+		
+
+		//  x  .  .
+    	//  .  .  .
+    	//  .  .  .
+		x = r*ncols - ncols + c - 1;
+		//printf("%d\n", x);
+		sum_R += in[x].R * filt1;
+		sum_G += in[x].G * filt1;
+		sum_B += in[x].B * filt1;
+		
+
+		//  .  x  .
+    	//  .  .  .
+    	//  .  .  .
+		++x;
+		sum_R += in[x].R * filt2;
+		sum_G += in[x].G * filt2;
+		sum_B += in[x].B * filt2;
+		
+
+
+		//  .  .  x
+    	//  .  .  .
+    	//  .  .  .		
+		++x;
+		sum_R += in[x].R * filt3;
+		sum_G += in[x].G * filt3;
+		sum_B += in[x].B * filt3;
+		//printf("c:%d sum:%d \n", c, ncols_sum);
+
+		x = r*ncols + c;
+		
+    	// out[ncols_sum].R = (float) sum_R / d;
+    	// out[ncols_sum].G = (float) sum_G / d;
+    	// out[ncols_sum].B = (float) sum_B / d;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	//++ncols_sum;
+	}
+	//ncols_sum = old_ncols_sum + ncols;
+	//old_ncols_sum = ncols_sum;
+	//printf("%d %d\n", r, c);
 }
 }
 
