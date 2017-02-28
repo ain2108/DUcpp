@@ -1,20 +1,65 @@
-/*
-	List of modifications:
-	1) One less operation in calculation of filter element index
-	2) Unrolled the loop
-	3) temp variable added not to recalculate filt[y] every time
+/*******************************************************************
+ * README:
+ * I am going to describe what my code does here, 
+ * because there is a lot of it and it is very repetative. 
+ * 
+ * a) Firstly, we see if the filter is the identity, if it is, 
+ * memcpy it and we are done.
+ * 
+ * b) Then we want to evaluate the border of the image. Conditionals
+ * cosume cycles, so we want to move them out of the intense loop
+ * 
+ * c) After we are done evaluating the border, we can optimize
+ * the evaluation of the rest of the image specifically to our
+ * filters. You can see these sections named "EDGE", "SHARPEN" and
+ * "Gaussian"
+ *
+ * d) Every filter specific evaluation has the same structure:
+ * Check if the image is big (does not fit into cache). If it is
+ * we split the image verticallty into nice pieces and evaluate
+ * piece after peice, and then in the separete loop the leftovers.
+ * If it is small enough, we unroll the loop by a factor of 8, 
+ * and do the computation. NOTE: The section "EDGE" is the one
+ * annotated. 
+ *
+ * e) Similar computation for the generl filter 
+ *
+ *******************************************************************/
 
-*/
 
-// Fix the top border
+
 
 #define CACHE_SIZE 32768
 #define UNROLLING_FACTOR 8
 
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+////////////////////////// IDENTITY //////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 if(filt[4] == 1){
 	memcpy(out, in, ncols*nrows*sizeof(pixel));
 	return;
 }
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////// BORDER EVALUATION ///////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////
 
 register int 	filt1, filt2, filt3,
 			filt4, filt5, filt6,
@@ -247,30 +292,9 @@ for (int c = 1; c < ncols - 1; c++) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Now that we calculated the edges, we do not need the 
-conditionals inside the loop anymore. */
-
-
-
-
+ * conditionals inside the loop anymore. Lets optimize 
+ * for different filters now */
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -282,15 +306,15 @@ conditionals inside the loop anymore. */
 //////////////////////////////////////////////////////////////
 if(filt[4] == 5){
 
+
 int ncols_sum = ncols + 1;
 int old_ncols_sum = ncols_sum;
-
-
 int bytes_used = ncols * sizeof(pixel);
 int niter = bytes_used / 8192;
 int cols_left = 0;
 
-/* If the picture does not fit in the cache */
+/* If the picture does not fit in the cache, this loop will
+ * break it into chuncks of good size and evaluate them*/
 if(niter != 0){
 	cols_left = bytes_used % 8192;
 
@@ -311,7 +335,8 @@ for (int r = 1; r < nrows - 1; r++) {
 
     	/* Unrolling the loop */
       
-		
+		/* This little drawing shows the relative elemnt you are,
+		 * operating on for our convenice */
 		//  .  .  .
     	//  .  .  .
     	//  .  x  .
@@ -365,6 +390,7 @@ for (int r = 1; r < nrows - 1; r++) {
 }
 }
 
+/* Evaluate the leftovers */
 ncols_sum = 0;
 for (int r = 1; r < nrows - 1; r++) {
 	for (int c = bound; c < ncols - 1; c++) {
@@ -426,9 +452,13 @@ for (int r = 1; r < nrows - 1; r++) {
 	}
 }
 
+/* We get here if the image was small enough to fit well into
+ * our cache. Here we will unroll the loop instead */
 }else{
 	
-	int unrolled_iterations = ((ncols - 2) / UNROLLING_FACTOR) * UNROLLING_FACTOR;
+	// Figure out how many itearation will there be
+	int unrolled_iterations = 
+		((ncols - 2) / UNROLLING_FACTOR) * UNROLLING_FACTOR;
 	for (int r = 1; r < nrows - 1; r++) {
 
 	int c;
@@ -491,213 +521,214 @@ for (int r = 1; r < nrows - 1; r++) {
     	out[x].G = (float) sum_G / d;
     	out[x].B = (float) sum_B / d;
 
-    	/* UNROLL */
-    	c++;
-    	sum_R = 0;
-    	sum_G = 0;
-    	sum_B = 0;
-    	x = r*ncols + ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c - 1;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		++x;
-		sum_R += in[x].R * 5;
-		sum_G += in[x].G * 5;
-		sum_B += in[x].B * 5;
-		++x;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols - ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c;
-    	out[x].R = (float) sum_R / d;
-    	out[x].G = (float) sum_G / d;
-    	out[x].B = (float) sum_B / d;
-    	/* UNROLL */
-    	c++;
-    	sum_R = 0;
-    	sum_G = 0;
-    	sum_B = 0;
-    	x = r*ncols + ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c - 1;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		++x;
-		sum_R += in[x].R * 5;
-		sum_G += in[x].G * 5;
-		sum_B += in[x].B * 5;
-		++x;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols - ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c;
-    	out[x].R = (float) sum_R / d;
-    	out[x].G = (float) sum_G / d;
-    	out[x].B = (float) sum_B / d;
-    	/* UNROLL */
-    	c++;
-    	sum_R = 0;
-    	sum_G = 0;
-    	sum_B = 0;
-    	x = r*ncols + ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c - 1;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		++x;
-		sum_R += in[x].R * 5;
-		sum_G += in[x].G * 5;
-		sum_B += in[x].B * 5;
-		++x;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols - ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c;
-    	out[x].R = (float) sum_R / d;
-    	out[x].G = (float) sum_G / d;
-    	out[x].B = (float) sum_B / d;
-    	/* UNROLL */
-    	c++;
-    	sum_R = 0;
-    	sum_G = 0;
-    	sum_B = 0;
-    	x = r*ncols + ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c - 1;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		++x;
-		sum_R += in[x].R * 5;
-		sum_G += in[x].G * 5;
-		sum_B += in[x].B * 5;
-		++x;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols - ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c;
-    	out[x].R = (float) sum_R / d;
-    	out[x].G = (float) sum_G / d;
-    	out[x].B = (float) sum_B / d;
-    	/* UNROLL */
-    	c++;
-    	sum_R = 0;
-    	sum_G = 0;
-    	sum_B = 0;
-    	x = r*ncols + ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c - 1;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		++x;
-		sum_R += in[x].R * 5;
-		sum_G += in[x].G * 5;
-		sum_B += in[x].B * 5;
-		++x;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols - ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c;
-    	out[x].R = (float) sum_R / d;
-    	out[x].G = (float) sum_G / d;
-    	out[x].B = (float) sum_B / d;
-    	/* UNROLL */
-    	c++;
-    	sum_R = 0;
-    	sum_G = 0;
-    	sum_B = 0;
-    	x = r*ncols + ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c - 1;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		++x;
-		sum_R += in[x].R * 5;
-		sum_G += in[x].G * 5;
-		sum_B += in[x].B * 5;
-		++x;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols - ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c;
-    	out[x].R = (float) sum_R / d;
-    	out[x].G = (float) sum_G / d;
-    	out[x].B = (float) sum_B / d;
-    	/* UNROLL */
-    	c++;
-    	sum_R = 0;
-    	sum_G = 0;
-    	sum_B = 0;
-    	x = r*ncols + ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c - 1;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		++x;
-		sum_R += in[x].R * 5;
-		sum_G += in[x].G * 5;
-		sum_B += in[x].B * 5;
-		++x;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols - ncols + c;
-		sum_R -= in[x].R;
-		sum_G -= in[x].G;
-		sum_B -= in[x].B;
-		x = r*ncols + c;
-    	out[x].R = (float) sum_R / d;
-    	out[x].G = (float) sum_G / d;
-    	out[x].B = (float) sum_B / d;
+    	/* Here we have another 7 iterationg of the loop */
 
-		
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c - 1;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		++x;
+		sum_R += in[x].R * 5;
+		sum_G += in[x].G * 5;
+		sum_B += in[x].B * 5;
+		++x;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols - ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c - 1;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		++x;
+		sum_R += in[x].R * 5;
+		sum_G += in[x].G * 5;
+		sum_B += in[x].B * 5;
+		++x;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols - ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c - 1;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		++x;
+		sum_R += in[x].R * 5;
+		sum_G += in[x].G * 5;
+		sum_B += in[x].B * 5;
+		++x;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols - ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c - 1;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		++x;
+		sum_R += in[x].R * 5;
+		sum_G += in[x].G * 5;
+		sum_B += in[x].B * 5;
+		++x;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols - ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c - 1;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		++x;
+		sum_R += in[x].R * 5;
+		sum_G += in[x].G * 5;
+		sum_B += in[x].B * 5;
+		++x;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols - ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c - 1;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		++x;
+		sum_R += in[x].R * 5;
+		sum_G += in[x].G * 5;
+		sum_B += in[x].B * 5;
+		++x;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols - ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
+    	/* UNROLL */
+    	c++;
+    	sum_R = 0;
+    	sum_G = 0;
+    	sum_B = 0;
+    	x = r*ncols + ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c - 1;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		++x;
+		sum_R += in[x].R * 5;
+		sum_G += in[x].G * 5;
+		sum_B += in[x].B * 5;
+		++x;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols - ncols + c;
+		sum_R -= in[x].R;
+		sum_G -= in[x].G;
+		sum_B -= in[x].B;
+		x = r*ncols + c;
+    	out[x].R = (float) sum_R / d;
+    	out[x].G = (float) sum_G / d;
+    	out[x].B = (float) sum_B / d;
 	}
 
+	/* Finish of the few columns that could not be properly unrolled */
 	for (int c = unrolled_iterations + 1; c < ncols - 1; c++) {
     	uint sum_R = 0;
     	uint sum_G = 0;
@@ -757,6 +788,8 @@ for (int r = 1; r < nrows - 1; r++) {
 	}
 }
 }
+
+/* We are done with our evaluation, so we want to exit here */
 return;
 
 
@@ -764,7 +797,7 @@ return;
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
-////////////////////////// SHARPEN //////////////////////////
+////////////////////////// SHARPEN ///////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
@@ -772,6 +805,8 @@ return;
 /* Sharpen filter optimizatin */
 }else if(filt[4] == 8){
 
+int ncols_sum = ncols + 1;
+int old_ncols_sum = ncols_sum;
 
 
 int bytes_used = ncols * sizeof(pixel);
@@ -991,6 +1026,7 @@ for (int r = 1; r < nrows - 1; r++) {
 }
 
 }else{
+
 	int unrolled_iterations = ((ncols - 2) / UNROLLING_FACTOR) * UNROLLING_FACTOR;
 	for (int r = 1; r < nrows - 1; r++) {
 
