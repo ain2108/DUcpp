@@ -10,6 +10,10 @@
 #define GHIST_TAKE(h) (h = (((h << 1) + 1) << nub) >> nub)
 #define GHIST_NTAKE(h) (h = ((h << 1) << nub) >> nub)
 
+// Managing the local counters, to avoid pointers "array of pointers"
+#define GET_COUNTER(i,j) *(local_counters + columns * i + j)
+#define SET_COUNTER(i,j, value) (*(local_counters + columns * i + j) = value);
+
 typedef unsigned int uint;
 
 KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "bpred.out", "specify file name for branch predictor output");
@@ -49,9 +53,8 @@ void print_local_counters(){
   cout << "print counter table:\n";
   
   for(int i = 0; i < rows; i++){
-    for (int j = 0; j < columns; ++i)
-    {
-      cout << " " << *(local_counters + i*columns + j);
+    for (int j = 0; j < columns; j++){
+      cout << " " << GET_COUNTER(i, j);
     }
       cout << endl;
   } 
@@ -80,7 +83,7 @@ void init_globals(){
   memset(local_counters, 0, sizeof(int) * rows * columns);
 
   print_local_counters();
-  *(local_counters + 1*columns + 1) = 3;
+  SET_COUNTER(1, 1, 10);
   print_local_counters();
 
 }
