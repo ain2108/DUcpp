@@ -44,6 +44,19 @@ uint total_branches = 0;
 uint total_taken = 0;
 uint total_fallthru = 0;
 
+int print_local_counters(){
+
+  cout << "print counter table:\n";
+  
+  for(int i = 0; i < rows; i++){
+    for (int j = 0; j < columns; ++i)
+    {
+      cout << " " << local_counters[i][j];
+    }
+      cout << endl;
+  } 
+}
+
 
 void init_globals(){
 
@@ -66,10 +79,9 @@ void init_globals(){
   assert(local_counters != NULL);
   memset(local_counters, 0, sizeof(int) * rows * columns);
 
-  //cout << local_counters[0][1]; 
-  //local_counters[0][1]++;
-  //cout << local_counters[0][1]; 
-
+  print_local_counters();
+  local_counters[0][1] = 3;
+  print_local_counters();
 
 }
 
