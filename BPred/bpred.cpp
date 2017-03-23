@@ -38,7 +38,7 @@ uint k = 0;
 int rows;
 
 // The local state
-int *local_counters;
+int **local_counters;
 
 uint total_branches = 0;
 uint total_taken = 0;
@@ -60,7 +60,7 @@ void init_globals(){
   k = KnobK.Value();
   rows = pow(2, k);
 
-  local_counters = (int *) malloc(sizeof(int) * rows * columns);
+  local_counters = (int **) malloc(sizeof(int) * rows * columns);
   assert(local_counters != NULL);
   memset(local_counters, 0, sizeof(int) * rows * columns);
 
