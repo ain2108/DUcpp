@@ -145,8 +145,9 @@ int main(int argc, CHAR *argv[]) {
     }
 
     GHIST_TAKE(hist_state);
+    hist_state = ((((hist_state << 1) + 1) << nub) >> nub);
     cout << "n = " << n << ", m = " << m << ", k = " << k << endl;
-    cout << "nub = " << nub << "h -> " << hist_state << endl;
+    cout << "nub = " << nub << " h -> " << hist_state << endl;
 
     IMG_AddInstrumentFunction(Image, 0);
     PIN_AddFiniFunction(Fini, 0);
