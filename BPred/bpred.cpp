@@ -64,7 +64,7 @@ VOID DoBranch(ADDRINT pc, BOOL taken) {
     GHIST_TAKE(hist_state);
   }else{
     total_fallthru++;
-    GHIST_NTAKE(hist_state)
+    GHIST_NTAKE(hist_state);
   }
   cout << hist_state << endl;
 }
