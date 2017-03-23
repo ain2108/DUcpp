@@ -7,8 +7,8 @@
 #include "pin.H"
 
 // Macros to update global history
-#define GHIST_TAKE(h) ((((h << 1) + 1) << nub) >> nub)
-#define GHIST_NTAKE(h) (((h << 1) << nub) >> nub)
+#define GHIST_TAKE(h) (h = (((h << 1) + 1) << nub) >> nub)
+#define GHIST_NTAKE(h) (h = ((h << 1) << nub) >> nub)
 
 typedef unsigned int uint;
 
@@ -66,7 +66,7 @@ VOID DoBranch(ADDRINT pc, BOOL taken) {
     total_fallthru++;
     GHIST_NTAKE(hist_state);
   }
-  //cout << hist_state << endl;
+  cout << hist_state << endl;
 }
 
 // Called once per runtime image load
@@ -144,7 +144,7 @@ int main(int argc, CHAR *argv[]) {
       return Usage();
     }
 
-    GHIST_TAKE(hist_state);
+    //GHIST_TAKE(hist_state);
     hist_state = ((((hist_state << 1) + 1) << nub) >> nub);
     cout << "n = " << n << ", m = " << m << ", k = " << k << endl;
     cout << "nub = " << nub << " h -> " << hist_state << endl;
