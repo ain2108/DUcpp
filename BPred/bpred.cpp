@@ -25,13 +25,20 @@ float accuracy = 0;
 
 // Counter FSM
 uint n = 0;
+uint top_n;
 
 // History
 uint m = 0;
 int nub; // not_used_bytes
-uint hist_state;
+uint hist_state; // global history counter
+uint columns;
 
+// Related to number of entries in the table
 uint k = 0;
+uint rows;
+
+// The local state
+int *local_counters;
 
 uint total_branches = 0;
 uint total_taken = 0;
@@ -41,15 +48,25 @@ uint total_fallthru = 0;
 void init_globals(){
 
   n = KnobN.Value();
+  top_n = pow(2, n);
 
   // History related
   m = KnobM.Value();
   nub = sizeof(int) * 8 - m;
   hist_state = 0; //Initialize the counter to 0
+  columns = pow(2, m);
 
-
-
+  // Table
   k = KnobK.Value();
+  rows = pow(2, k);
+
+  local_counters = malloc(sizeof(int) * rows * columns);
+  assert(local_counters != NULL);
+  memset(local_counters, 0, sizeof(int) * rows * columns);
+
+  cout << local_counters[0][1]; 
+  local_counters[0][3]++;
+  cout << local_counters[0][1]; 
 
 
 }
@@ -61,14 +78,14 @@ VOID DoBranch(ADDRINT pc, BOOL taken) {
   total_branches++;
   if(taken){
     total_taken++;
-    cout << "T ";
+    //cout << "T ";
     GHIST_TAKE(hist_state);
   }else{
     total_fallthru++;
-    cout << "NT ";
+    //cout << "NT ";
     GHIST_NTAKE(hist_state);
   }
-  cout << hist_state << endl;
+  //cout << hist_state << endl;
 }
 
 // Called once per runtime image load
@@ -112,6 +129,9 @@ VOID Fini(int, VOID * v) {
     out << "accuracy: " << setprecision(3) << accuracy << endl;
 
     out.close();
+
+    // Cleanuup
+    free(local_counters);
 }
 
 bool check_input(){
@@ -127,6 +147,9 @@ bool check_input(){
   // Since we are using ints to represent the counter,
   // it better be that the counter fits into an int
   if(n > (sizeof(int) * 8) || n < 0)
+    return false;
+
+  if(local_counters == NULL)
     return false;
 
 
