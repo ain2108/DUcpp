@@ -38,7 +38,7 @@ uint k = 0;
 int rows;
 
 // The local state
-int **local_counters;
+int *local_counters;
 
 uint total_branches = 0;
 uint total_taken = 0;
@@ -51,7 +51,7 @@ void print_local_counters(){
   for(int i = 0; i < rows; i++){
     for (int j = 0; j < columns; ++i)
     {
-      cout << " " << local_counters[i][j];
+      cout << " " << *(local_counters + i*columns + j);
     }
       cout << endl;
   } 
@@ -75,12 +75,12 @@ void init_globals(){
 
   cout << "rows: " << rows << " columns: " << columns << endl;
 
-  local_counters = (int **) malloc(sizeof(int) * rows * columns);
+  local_counters = (int *) malloc(sizeof(int) * rows * columns);
   assert(local_counters != NULL);
   memset(local_counters, 0, sizeof(int) * rows * columns);
 
   print_local_counters();
-  local_counters[0][1] = 3;
+  *(local_counters + 1*columns + 1) = 3;
   print_local_counters();
 
 }
