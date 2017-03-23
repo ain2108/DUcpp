@@ -146,8 +146,6 @@ int main(int argc, CHAR *argv[]) {
       return Usage();
     }
 
-    //GHIST_TAKE(hist_state);
-    hist_state = ((((hist_state << 1) + 1) << nub) >> nub);
     cout << "n = " << n << ", m = " << m << ", k = " << k << endl;
     cout << "nub = " << nub << " h -> " << hist_state << endl;
 
