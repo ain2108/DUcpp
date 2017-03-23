@@ -66,7 +66,7 @@ VOID DoBranch(ADDRINT pc, BOOL taken) {
     total_fallthru++;
     GHIST_NTAKE(hist_state);
   }
-  cout << hist_state << endl;
+  //cout << hist_state << endl;
 }
 
 // Called once per runtime image load
@@ -144,7 +144,9 @@ int main(int argc, CHAR *argv[]) {
       return Usage();
     }
 
+    GHIST_TAKE(hist_state);
     cout << "n = " << n << ", m = " << m << ", k = " << k << endl;
+    cout << "nub = " << nub << "h -> " << hist_state << endl;
 
     IMG_AddInstrumentFunction(Image, 0);
     PIN_AddFiniFunction(Fini, 0);
