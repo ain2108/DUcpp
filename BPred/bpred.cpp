@@ -65,7 +65,7 @@ void init_globals(){
   memset(local_counters, 0, sizeof(int) * rows * columns);
 
   cout << local_counters[0][1]; 
-  local_counters[0][3]++;
+  local_counters[0][1]++;
   cout << local_counters[0][1]; 
 
 
