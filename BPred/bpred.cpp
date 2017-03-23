@@ -61,9 +61,11 @@ VOID DoBranch(ADDRINT pc, BOOL taken) {
   total_branches++;
   if(taken){
     total_taken++;
+    cout << "T ";
     GHIST_TAKE(hist_state);
   }else{
     total_fallthru++;
+    cout >> "NT ";
     GHIST_NTAKE(hist_state);
   }
   cout << hist_state << endl;
