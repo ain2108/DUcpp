@@ -48,17 +48,17 @@ uint total_fallthru = 0;
 void init_globals(){
 
   n = KnobN.Value();
-  top_n = pow(2, n);
+  top_n = (int) pow(2, (double) n);
 
   // History related
   m = KnobM.Value();
   nub = sizeof(int) * 8 - m;
   hist_state = 0; //Initialize the counter to 0
-  columns = pow(2, m);
+  columns = (int) pow(2, (double) m);
 
   // Table
   k = KnobK.Value();
-  rows = pow(2, k);
+  rows = (int) pow(2, (double) k);
 
   local_counters = (int **) malloc(sizeof(int) * rows * columns);
   assert(local_counters != NULL);
