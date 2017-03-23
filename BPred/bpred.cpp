@@ -28,7 +28,7 @@ uint n = 0;
 
 // History
 uint m = 0;
-int nub = 0; // not_used_bytes
+int nub; // not_used_bytes
 uint hist_state;
 
 uint k = 0;
