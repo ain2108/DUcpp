@@ -60,13 +60,15 @@ void init_globals(){
   k = KnobK.Value();
   rows = (int) pow(2, (double) k);
 
+  cout << "rows: " << rows << " columns: " << columns << endl;
+
   local_counters = (int **) malloc(sizeof(int) * rows * columns);
   assert(local_counters != NULL);
   memset(local_counters, 0, sizeof(int) * rows * columns);
 
-  cout << local_counters[0][1]; 
-  local_counters[0][1]++;
-  cout << local_counters[0][1]; 
+  //cout << local_counters[0][1]; 
+  //local_counters[0][1]++;
+  //cout << local_counters[0][1]; 
 
 
 }
