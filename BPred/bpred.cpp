@@ -7,8 +7,8 @@
 #include "pin.H"
 
 // Macros to update global history
-#define GHIST_TAKE(hist_state) ((((hist_state << 1) + 1) << nub) >> nub)
-#define GHIST_NTAKE(hist_state) (((hist_state << 1) << nub) >> nub)
+#define GHIST_TAKE(h) ((((h << 1) + 1) << nub) >> nub)
+#define GHIST_NTAKE(h) (((h << 1) << nub) >> nub)
 
 typedef unsigned int uint;
 
