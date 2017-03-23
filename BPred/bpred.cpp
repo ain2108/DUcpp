@@ -44,7 +44,7 @@ uint total_branches = 0;
 uint total_taken = 0;
 uint total_fallthru = 0;
 
-int print_local_counters(){
+void print_local_counters(){
 
   cout << "print counter table:\n";
   
