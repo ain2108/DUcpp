@@ -6,6 +6,10 @@
 #include <unistd.h>
 #include "pin.H"
 
+// Macros to update global history
+#define GHIST_TAKE(hist_state) ((((hist_state << 1) + 1) << nub) >> nub)
+#define GHIST_NTAKE(hist_state) (((hist_state << 1) << nub) >> nub)
+
 typedef unsigned int uint;
 
 KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "bpred.out", "specify file name for branch predictor output");
@@ -18,23 +22,51 @@ KNOB<UINT32> KnobK(KNOB_MODE_WRITEONCE, "pintool", "k", "0", "Branch PC bits to 
 // below) should be unchanged.
 uint total_bits = 0;
 float accuracy = 0;
+
+// Counter FSM
 uint n = 0;
+
+// History
 uint m = 0;
+int nub = 0; // not_used_bytes
+uint hist_state;
+
 uint k = 0;
+
 uint total_branches = 0;
 uint total_taken = 0;
 uint total_fallthru = 0;
+
+
+void init_globals(){
+
+  n = KnobN.Value();
+
+  // History related
+  m = KnobM.Value();
+  nub = sizeof(int) * 8 - m;
+  hist_state = 0; //Initialize the counter to 0
+
+
+
+  k = KnobK.Value();
+
+
+}
 
 // Invoked once per dynamic branch instruction
 // pc: The address of the branch
 // taken: Non zero if a branch is taken
 VOID DoBranch(ADDRINT pc, BOOL taken) {
   total_branches++;
-  if (taken)
+  if(taken){
     total_taken++;
-  else
+    GHIST_TAKE(hist_state);
+  }else{
     total_fallthru++;
-  
+    GHIST_NTAKE(hist_state)
+  }
+  cout << hist_state << endl;
 }
 
 // Called once per runtime image load
@@ -80,6 +112,25 @@ VOID Fini(int, VOID * v) {
     out.close();
 }
 
+bool check_input(){
+  
+  // Make sure provided k makes sense
+  if(k > 16 || k < 0)
+    return false;
+
+  // Make sure provided m makes sense
+  if(m > 16 || m < 0)
+    return false;
+
+  // Since we are using ints to represent the counter,
+  // it better be that the counter fits into an int
+  if(n > (sizeof(int) * 8) || n < 0)
+    return false;
+
+
+  return true;
+}
+
 // Called once prior to program execution
 int main(int argc, CHAR *argv[]) {
     PIN_InitSymbols();
@@ -87,6 +138,13 @@ int main(int argc, CHAR *argv[]) {
     if (PIN_Init(argc, argv)) {
         return Usage();
     }
+
+    init_globals();
+    if(!check_input()){
+      return Usage();
+    }
+
+    cout << "n = " << n << ", m = " << m << ", k = " << k << endl;
 
     IMG_AddInstrumentFunction(Image, 0);
     PIN_AddFiniFunction(Fini, 0);
