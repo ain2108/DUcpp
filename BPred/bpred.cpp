@@ -31,11 +31,11 @@ uint top_n;
 uint m = 0;
 int nub; // not_used_bytes
 uint hist_state; // global history counter
-uint columns;
+int columns;
 
 // Related to number of entries in the table
 uint k = 0;
-uint rows;
+int rows;
 
 // The local state
 int *local_counters;
@@ -60,7 +60,7 @@ void init_globals(){
   k = KnobK.Value();
   rows = pow(2, k);
 
-  local_counters = malloc(sizeof(int) * rows * columns);
+  local_counters = (int *) malloc(sizeof(int) * rows * columns);
   assert(local_counters != NULL);
   memset(local_counters, 0, sizeof(int) * rows * columns);
 
