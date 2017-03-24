@@ -1,3 +1,4 @@
+#!/bin/bash
 $PIN_ROOT/pin -t obj-intel64/bpred.so -n 1 -m 0 -k 0 -o test.out -- convert wallpaper-color-19.jpg -resize 200x200 wallpaper-color-19-reduced.jpg >> data.sh
 $PIN_ROOT/pin -t obj-intel64/bpred.so -n 1 -m 0 -k 1 -o test.out -- convert wallpaper-color-19.jpg -resize 200x200 wallpaper-color-19-reduced.jpg >> data.sh
 $PIN_ROOT/pin -t obj-intel64/bpred.so -n 1 -m 1 -k 0 -o test.out -- convert wallpaper-color-19.jpg -resize 200x200 wallpaper-color-19-reduced.jpg >> data.sh
