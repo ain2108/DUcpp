@@ -310,15 +310,19 @@ void init_globals(){
   // We need to change the function pointer here for two bit counter
   if(n == TWO){
     cout << "WARNING: Using 2-BIT counter.\n";
-    if(m != 0)
+    if(m != 0){
       DoBranch = DoBranch2BIT;
-    else
+    }else{
+      cout << "WARNING: No History Mode.\n";
       DoBranch = DoBranch2BITNoHist;
+    }
   }else{
-    if(m != 0)
+    if(m != 0){
       DoBranch = DoBranchGeneral;
-    else
+    }else{
+      cout << "WARNING: No History Mode.\n";
       DoBranch = DoBranchGeneralNoHist;
+    }
   }
 
   // History related
