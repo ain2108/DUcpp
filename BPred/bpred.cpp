@@ -103,6 +103,7 @@ VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
   bool not_floor = (loc_counter > 0);
   bool not_ceiling = (loc_counter < top_n);
 
+  cout << hist_state << endl;
 
   // If the branch was actually taken
   if(taken){
