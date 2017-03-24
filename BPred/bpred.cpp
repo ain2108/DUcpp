@@ -1,3 +1,23 @@
+/* Anton Nefedenkov ain2108
+ * Computer Architecture HW2: Branch Prediction */
+
+/* Notes:
+  1) To keep high performace and minimize the number of instructions
+  in DoBranch() code, I have 4 different functions out of which
+  DoBranch function pointer is going to point to one. 
+  2) Eventhough I have been reading contradicting information, I
+  settled on implementing the 2-BIT counter according to the following
+  table:
+    +---------+-----+-----+
+    | Current |  T  | NT  |
+    +---------+-----+-----+
+    | SNT     | WNT | SNT |
+    | WNT     | ST  | SNT |
+    | WT      | ST  | SNT |
+    | ST      | ST  | WT  |
+    +---------+-----+-----+
+*/
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -5,6 +25,19 @@
 #include <math.h>
 #include <unistd.h>
 #include "pin.H"
+
+typedef unsigned int uint;
+
+KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "bpred.out", "specify file name for branch predictor output");
+KNOB<UINT32> KnobM(KNOB_MODE_WRITEONCE, "pintool", "m", "0", "Global history size 0 <= m <= 16");
+KNOB<UINT32> KnobN(KNOB_MODE_WRITEONCE, "pintool", "n", "1", "Counter width n >= 1");
+KNOB<UINT32> KnobK(KNOB_MODE_WRITEONCE, "pintool", "k", "0", "Branch PC bits to use k, 0 <= k <= 16");
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////// VARS AND CPP ////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 
 // Macros to update global history
 #define GHIST_TAKE(h) (h = (((h << 1) + 1) << nub) >> nub)
@@ -24,19 +57,13 @@
 // To avoid changin Image code we gonna swap the pointer
 VOID (*DoBranch)(ADDRINT pc, BOOL taken);
 
-typedef unsigned int uint;
 
-KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "bpred.out", "specify file name for branch predictor output");
-KNOB<UINT32> KnobM(KNOB_MODE_WRITEONCE, "pintool", "m", "0", "Global history size 0 <= m <= 16");
-KNOB<UINT32> KnobN(KNOB_MODE_WRITEONCE, "pintool", "n", "1", "Counter width n >= 1");
-KNOB<UINT32> KnobK(KNOB_MODE_WRITEONCE, "pintool", "k", "0", "Branch PC bits to use k, 0 <= k <= 16");
-
-// These variables are my placeholders.  You may replace or modify 
-// their usage, as needed.  However the final output format (see Fini, 
-// below) should be unchanged.
 uint total_bits = 0;
-uint correctly_predicted = 0;
+uint correctly_predicted = 0;   // Used to calculate accuracy
 float accuracy = 0;
+uint total_branches = 0;
+uint total_taken = 0;
+uint total_fallthru = 0;
 
 // Counter FSM
 uint n = 0;
@@ -45,25 +72,20 @@ uint taken_starts;
 
 // History
 uint m = 0;
-int nub; // not_used_bytes
-uint hist_state; // global history counter
+int nub;                        // not_used_bytes
+uint hist_state;                // global history counter
 int columns;
 
 // Related to number of entries in the table
 uint k = 0;
-int rows;
+int rows;                       // Number of PC mod tracked
 
 // The local state
 int *local_counters;
 
-uint total_branches = 0;
-uint total_taken = 0;
-uint total_fallthru = 0;
-
+// Little heler to get a visual of what is ging on
 void print_local_counters(){
-
   cout << "print counter table:\n";
-  
   for(int i = 0; i < rows; i++){
     for (int j = 0; j < columns; j++){
       cout << " " << GET_COUNTER(i, j);
@@ -72,6 +94,12 @@ void print_local_counters(){
   } 
 }
 
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////// DO BRANCHES /////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
 /*  Since two bit counters transition differently from the 
     general n counters, we want to have a separate definition for them */
 // Invoked once per dynamic branch instruction
@@ -79,12 +107,47 @@ void print_local_counters(){
 // taken: Non zero if a branch is taken
 // 2-bit counter version
 VOID DoBranch2BIT(ADDRINT pc, BOOL taken) {
+  // We know that this is a branch, so increment
   total_branches++;
+  int entry_row = pc % rows;
+  // We want to get the counter on which we are going to base the prediction
+  uint loc_counter = GET_COUNTER(entry_row, hist_state);
+  // Make the prediction
+  bool predict_taken = (loc_counter >= taken_starts);
+
+  // If the branch was actually taken
   if(taken){
     total_taken++;
+    // We predicted the branch correctly
+    if(predict_taken){
+      correctly_predicted++;
+    }
+    // Only when we are Strongly Not Taken do we change NOT to
+    // Strongly Taken. Therefore simple conditinal suffices.
+    if(loc_counter == SNT)
+      SET_COUNTER(entry_row, hist_state, WNT);
+    else
+      SET_COUNTER(entry_row, hist_state, ST);
+    
+    // Change the history to reflect that the branch was TAKEN
     GHIST_TAKE(hist_state);
+
+  // Branch was not taken 
   }else{
     total_fallthru++;
+
+    // We predicted the branch correctly
+    if(!predict_taken){
+      correctly_predicted++;
+    }
+    // Similarly, only when we are in ST and we do not take the 
+    // branch do we go into not SNT.
+    if(loc_counter == ST)
+      SET_COUNTER(entry_row, hist_state, WT);
+    else
+      SET_COUNTER(entry_row, hist_state, SNT);
+
+    // Change the history to reflect that the branch was NOT TAKEN
     GHIST_NTAKE(hist_state);
   }
 }
@@ -140,11 +203,42 @@ VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
 /* These function as for the global-history-less option */
 // 2-bit counter historyless version
 VOID DoBranch2BITNoHist(ADDRINT pc, BOOL taken) {
+  // We know that this is a branch, so increment
   total_branches++;
+  int entry_row = pc % rows;
+  // We want to get the counter on which we are going to base the prediction
+  uint loc_counter = GET_COUNTER(entry_row, 0);
+  // Make the prediction
+  bool predict_taken = (loc_counter >= taken_starts);
+
+  // If the branch was actually taken
   if(taken){
     total_taken++;
+    // We predicted the branch correctly
+    if(predict_taken){
+      correctly_predicted++;
+    }
+    // Only when we are Strongly Not Taken do we change NOT to
+    // Strongly Taken. Therefore simple conditinal suffices.
+    if(loc_counter == SNT)
+      SET_COUNTER(entry_row, 0, WNT);
+    else
+      SET_COUNTER(entry_row, 0, ST);
+  
+  // Branch was not taken 
   }else{
     total_fallthru++;
+
+    // We predicted the branch correctly
+    if(!predict_taken){
+      correctly_predicted++;
+    }
+    // Similarly, only when we are in ST and we do not take the 
+    // branch do we go into not SNT.
+    if(loc_counter == ST)
+      SET_COUNTER(entry_row, 0, WT);
+    else
+      SET_COUNTER(entry_row, 0, SNT);
   }
 }
 
@@ -191,6 +285,14 @@ VOID DoBranchGeneralNoHist(ADDRINT pc, BOOL taken) {
     }
   }
 }
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+////////////////////////// OTHER /////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+
 
 void init_globals(){
 
@@ -240,6 +342,36 @@ void init_globals(){
 
 }
 
+bool check_input(){
+  
+  // Make sure provided k makes sense
+  if(k > 16 || k < 0)
+    return false;
+
+  // Make sure provided m makes sense
+  if(m > 16 || m < 0)
+    return false;
+
+  // Since we are using ints to represent the counter,
+  // it better be that the counter fits into an int
+  if(n > (sizeof(int) * 8) || n < 0)
+    return false;
+
+  if(local_counters == NULL)
+    return false;
+
+
+  return true;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////// BARELY TOUCHED BELOW ////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+
 // Called once per runtime image load
 VOID Image(IMG img, VOID * v) {
   // find and instrument branches
@@ -287,28 +419,6 @@ VOID Fini(int, VOID * v) {
     print_local_counters();
     // Cleanuup
     free(local_counters);
-}
-
-bool check_input(){
-  
-  // Make sure provided k makes sense
-  if(k > 16 || k < 0)
-    return false;
-
-  // Make sure provided m makes sense
-  if(m > 16 || m < 0)
-    return false;
-
-  // Since we are using ints to represent the counter,
-  // it better be that the counter fits into an int
-  if(n > (sizeof(int) * 8) || n < 0)
-    return false;
-
-  if(local_counters == NULL)
-    return false;
-
-
-  return true;
 }
 
 // Called once prior to program execution
