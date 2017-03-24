@@ -16,6 +16,11 @@
     | WT      | ST  | SNT |
     | ST      | ST  | WT  |
     +---------+-----+-----+
+  3) I am aware that the code is a monstrosity. The reason for all these
+  globals is to not pass states around. The table of counters is allocated
+  in such weird manner to avoid int** (an array of integer pointers) setup,
+  which would force me to jump an extra pointer in DoBranch() (that is to
+  be kept as fast as possible).
 */
 
 #include <iostream>
@@ -307,6 +312,10 @@ void init_globals(){
   cout << "n: " << n << " top_n: "; 
   cout << top_n << " taken_starts: " << taken_starts << endl;
 
+  // History related
+  m = KnobM.Value();
+  nub = sizeof(int) * 8 - m;
+
   // We need to change the function pointer here for two bit counter
   if(n == TWO){
     cout << "WARNING: Using 2-BIT counter.\n";
@@ -324,10 +333,6 @@ void init_globals(){
       DoBranch = DoBranchGeneralNoHist;
     }
   }
-
-  // History related
-  m = KnobM.Value();
-  nub = sizeof(int) * 8 - m;
 
   cout << "m: " << m << " nub: " << nub << endl; 
   hist_state = 0; //Initialize the counter to 0
