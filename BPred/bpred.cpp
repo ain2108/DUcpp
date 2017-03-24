@@ -86,7 +86,6 @@ VOID DoBranch2BIT(ADDRINT pc, BOOL taken) {
   }else{
     total_fallthru++;
     GHIST_NTAKE(hist_state);
-    if(GET_COUNTER)
   }
 }
 
