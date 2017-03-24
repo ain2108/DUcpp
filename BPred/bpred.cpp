@@ -100,7 +100,8 @@ VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
   // Make the prediction
   bool predict_taken = (loc_counter >= taken_starts);
   // Lets also calculate if the counter is in saturate state
-  bool interstate = (0 < loc_counter && loc_counter < top_n);
+  bool not_floor = (loc_counter > 0);
+  bool not_ceiling = (loc_counter < top_n);
 
 
   // If the branch was actually taken
@@ -112,7 +113,7 @@ VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
       correctly_predicted++;
     }
     // If counter is in a state that will be changed
-    if(interstate){
+    if(not_ceiling){
       loc_counter++;
       SET_COUNTER(entry_row, hist_state, loc_counter);
     }
@@ -128,9 +129,9 @@ VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
       correctly_predicted++;
     }
     // If counter is in a state that will be changed
-    if(interstate){
+    if(not_floor){
       loc_counter--;
-      SET_COUNTER(pc % rows, hist_state, loc_counter);
+      SET_COUNTER(entry_row, hist_state, loc_counter);
     }
     // Change the history to reflect that the branch was NOT TAKEN
     GHIST_NTAKE(hist_state);
