@@ -172,9 +172,9 @@ void init_globals(){
   assert(local_counters != NULL);
   memset(local_counters, 0, sizeof(int) * rows * columns);
 
-  print_local_counters();
-  SET_COUNTER(1, 1, 10);
-  print_local_counters();
+  // print_local_counters();
+  // SET_COUNTER(1, 1, 10);
+  // print_local_counters();
 
 }
 
