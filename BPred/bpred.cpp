@@ -103,8 +103,6 @@ VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
   bool not_floor = (loc_counter > 0);
   bool not_ceiling = (loc_counter < top_n);
 
-  cout << hist_state << endl;
-
   // If the branch was actually taken
   if(taken){
     total_taken++;
@@ -139,6 +137,61 @@ VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
   }
 }
 
+/* These function as for the global-history-less option */
+// 2-bit counter historyless version
+VOID DoBranch2BITNoHist(ADDRINT pc, BOOL taken) {
+  total_branches++;
+  if(taken){
+    total_taken++;
+  }else{
+    total_fallthru++;
+  }
+}
+
+// the general case
+VOID DoBranchGeneralNoHist(ADDRINT pc, BOOL taken) {
+  // We know that this is a branch, so increment
+  total_branches++;
+  
+  int entry_row = pc % rows;
+  // We want to get the counter on which we are going to base the prediction
+  uint loc_counter = GET_COUNTER(entry_row, 0);
+  // Make the prediction
+  bool predict_taken = (loc_counter >= taken_starts);
+  // Lets also calculate if the counter is in saturate state
+  bool not_floor = (loc_counter > 0);
+  bool not_ceiling = (loc_counter < top_n);
+
+  // If the branch was actually taken
+  if(taken){
+    total_taken++;
+
+    // We predicted the branch correctly
+    if(predict_taken){
+      correctly_predicted++;
+    }
+    // If counter is in a state that will be changed
+    if(not_ceiling){
+      loc_counter++;
+      SET_COUNTER(entry_row, 0, loc_counter);
+    }
+
+  // Branch was not taken 
+  }else{
+    total_fallthru++;
+
+    // We predicted the branch correctly
+    if(!predict_taken){
+      correctly_predicted++;
+    }
+    // If counter is in a state that will be changed
+    if(not_floor){
+      loc_counter--;
+      SET_COUNTER(entry_row, 0, loc_counter);
+    }
+  }
+}
+
 void init_globals(){
 
   // Counter related stuff
@@ -152,9 +205,15 @@ void init_globals(){
   // We need to change the function pointer here for two bit counter
   if(n == TWO){
     cout << "WARNING: Using 2-BIT counter.\n";
-    DoBranch = DoBranch2BIT;
+    if(m != 0)
+      DoBranch = DoBranch2BIT;
+    else
+      DoBranch = DoBranch2BITNoHist;
   }else{
-    DoBranch = DoBranchGeneral;
+    if(m != 0)
+      DoBranch = DoBranchGeneral;
+    else
+      DoBranch = DoBranchGeneralNoHist;
   }
 
   // History related
