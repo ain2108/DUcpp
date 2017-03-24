@@ -29,6 +29,7 @@
 #include <assert.h>
 #include <math.h>
 #include <unistd.h>
+#include <stdio.h>
 #include "pin.H"
 
 typedef unsigned int uint;
@@ -99,6 +100,13 @@ void print_local_counters(){
   } 
 }
 
+void print_globals(){
+  cout << "n: " << n << ", m: " << m << ", k: " << k << endl << endl;  
+  cout << "n: " << n << " top_n: "; 
+  cout << top_n << " taken_starts: " << taken_starts << endl;
+  cout << "m: " << m << " nub: " << nub << endl;
+  cout << "rows: " << rows << " columns: " << columns << endl;
+}
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////// DO BRANCHES /////////////////////////////////
@@ -309,48 +317,34 @@ void init_globals(){
   top_n = (int) pow(2, (double) n) - 1;
   taken_starts = (top_n + 1) / 2;
 
-  cout << "n: " << n << " top_n: "; 
-  cout << top_n << " taken_starts: " << taken_starts << endl;
-
   // History related
   m = KnobM.Value();
   nub = sizeof(int) * 8 - m;
 
   // We need to change the function pointer here for two bit counter
   if(n == TWO){
-    cout << "WARNING: Using 2-BIT counter.\n";
     if(m != 0){
       DoBranch = DoBranch2BIT;
     }else{
-      cout << "WARNING: No History Mode.\n";
       DoBranch = DoBranch2BITNoHist;
     }
   }else{
     if(m != 0){
       DoBranch = DoBranchGeneral;
     }else{
-      cout << "WARNING: No History Mode.\n";
       DoBranch = DoBranchGeneralNoHist;
     }
   }
 
-  cout << "m: " << m << " nub: " << nub << endl; 
   hist_state = 0; //Initialize the counter to 0
   columns = (int) pow(2, (double) m);
 
   // Table
   k = KnobK.Value();
   rows = (int) pow(2, (double) k);
-
-  cout << "rows: " << rows << " columns: " << columns << endl;
-
   local_counters = (int *) malloc(sizeof(int) * rows * columns);
   assert(local_counters != NULL);
   memset(local_counters, 0, sizeof(int) * rows * columns);
-
-  // print_local_counters();
-  // SET_COUNTER(1, 1, 10);
-  // print_local_counters();
 
 }
 
@@ -414,7 +408,10 @@ VOID Fini(int, VOID * v) {
     std::ofstream out;
     filename =  KnobOutputFile.Value();
 
+    // Calculate the accuracy here
     accuracy = (float) correctly_predicted / total_branches;
+    // Calculate the size of the predictor
+    total_bits = n * rows * columns;
 
     out.open(filename.c_str());
     out << "m: " << KnobM.Value() << endl;
@@ -428,7 +425,10 @@ VOID Fini(int, VOID * v) {
 
     out.close();
 
-    print_local_counters();
+    fprintf(stdout, "(%d, %d, %d)\t", n, m, k);
+    cout << setprecision(3) << accuracy << endl;
+
+    // print_local_counters();
     // Cleanuup
     free(local_counters);
 }
@@ -445,9 +445,6 @@ int main(int argc, CHAR *argv[]) {
     if(!check_input()){
       return Usage();
     }
-
-    cout << "n = " << n << ", m = " << m << ", k = " << k << endl;
-    cout << "nub = " << nub << " h -> " << hist_state << endl;
 
     IMG_AddInstrumentFunction(Image, 0);
     PIN_AddFiniFunction(Fini, 0);
