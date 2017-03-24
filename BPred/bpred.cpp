@@ -94,7 +94,7 @@ VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
   // We know that this is a branch, so increment
   total_branches++;
   // We want to get the counter on which we are going to base the prediction
-  int loc_counter = GET_COUNTER(pc % rows, hist_state);
+  uint loc_counter = GET_COUNTER(pc % rows, hist_state);
   // Make the prediction
   bool predict_taken = (loc_counter >= taken_starts);
   // Lets also calculate if the counter is in saturate state
