@@ -160,6 +160,8 @@ void init_globals(){
   // History related
   m = KnobM.Value();
   nub = sizeof(int) * 8 - m;
+
+  cout << "m: " << m << " nub: " << nub << endl; 
   hist_state = 0; //Initialize the counter to 0
   columns = (int) pow(2, (double) m);
 
