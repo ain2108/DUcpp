@@ -14,6 +14,16 @@
 #define GET_COUNTER(i,j) *(local_counters + columns * i + j)
 #define SET_COUNTER(i,j, value) (*(local_counters + columns * i + j) = value);
 
+// Few definitions for the 2-bit counter case
+#define SNT 0   // Strongly Not Taken
+#define WNT 1   // Weakly Not Taken 
+#define WT 2    // Weakly Taken
+#define ST 3    // Strongly Taken 
+#define TWO 2   // :)
+
+// To avoid changin Image code we gonna swap the pointer
+VOID (*DoBranch)(ADDRINT pc, BOOL taken);
+
 typedef unsigned int uint;
 
 KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "bpred.out", "specify file name for branch predictor output");
@@ -30,6 +40,7 @@ float accuracy = 0;
 // Counter FSM
 uint n = 0;
 uint top_n;
+uint taken_starts;
 
 // History
 uint m = 0;
@@ -63,8 +74,17 @@ void print_local_counters(){
 
 void init_globals(){
 
+  // Counter related stuff
   n = KnobN.Value();
   top_n = (int) pow(2, (double) n);
+  taken_starts = top_n / 2;
+
+  // We need to change the function pointer here for two bit counter
+  if(n == TWO){
+    DoBranch = DoBranch2BIT;
+  }else{
+    DoBranch = DoBranchGeneral;
+  }
 
   // History related
   m = KnobM.Value();
@@ -88,21 +108,36 @@ void init_globals(){
 
 }
 
+
+/*  Since two bit counters transition differently from the 
+    general n counters, we want to have a separate definition for them */
 // Invoked once per dynamic branch instruction
 // pc: The address of the branch
 // taken: Non zero if a branch is taken
-VOID DoBranch(ADDRINT pc, BOOL taken) {
+
+
+// 2-bit counter version
+VOID DoBranch2BIT(ADDRINT pc, BOOL taken) {
   total_branches++;
   if(taken){
     total_taken++;
-    //cout << "T ";
     GHIST_TAKE(hist_state);
   }else{
     total_fallthru++;
-    //cout << "NT ";
     GHIST_NTAKE(hist_state);
   }
-  //cout << hist_state << endl;
+}
+
+// the general case
+VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
+  total_branches++;
+  if(taken){
+    total_taken++;
+    GHIST_TAKE(hist_state);
+  }else{
+    total_fallthru++;
+    GHIST_NTAKE(hist_state);
+  }
 }
 
 // Called once per runtime image load
