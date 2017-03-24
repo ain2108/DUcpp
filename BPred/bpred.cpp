@@ -11,8 +11,8 @@
 #define GHIST_NTAKE(h) (h = ((h << 1) << nub) >> nub)
 
 // Managing the local counters, to avoid pointers "array of pointers"
-#define GET_COUNTER(i,j) *(local_counters + columns * i + j)
-#define SET_COUNTER(i,j, value) (*(local_counters + columns * i + j) = value);
+#define GET_COUNTER(i,j) *(local_counters + columns * (i) + (j))
+#define SET_COUNTER(i,j, value) (*(local_counters + columns * (i) + (j)) = (value));
 
 // Few definitions for the 2-bit counter case
 #define SNT 0   // Strongly Not Taken
@@ -35,6 +35,7 @@ KNOB<UINT32> KnobK(KNOB_MODE_WRITEONCE, "pintool", "k", "0", "Branch PC bits to 
 // their usage, as needed.  However the final output format (see Fini, 
 // below) should be unchanged.
 uint total_bits = 0;
+uint correctly_predicted = 0;
 float accuracy = 0;
 
 // Counter FSM
@@ -85,17 +86,49 @@ VOID DoBranch2BIT(ADDRINT pc, BOOL taken) {
   }else{
     total_fallthru++;
     GHIST_NTAKE(hist_state);
+    if(GET_COUNTER)
   }
 }
 
 // the general case
 VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
+  // We know that this is a branch, so increment
   total_branches++;
+  // We want to get the counter on which we are going to base the prediction
+  int loc_counter = GET_COUNTER(pc % rows, hist_state);
+  // Make the prediction
+  bool predict_taken = (loc_counter >= taken_starts);
+  // Lets also calculate if the counter is in saturate state
+  bool interstate = (0 < loc_counter && loc_counter < top_n);
+
+  // If the branch was actually taken
   if(taken){
     total_taken++;
+
+    // We predicted the branch correctly
+    if(predict_taken){
+      correctly_predicted++;
+    }
+    // If counter is in a state that will be changed
+    if(interstate){
+      SET_COUNTER(pc % rows, hist_state, loc_counter + 1);
+    }
+    // Change the history to reflect that the branch was TAKEN
     GHIST_TAKE(hist_state);
+
+  // Branch was not taken 
   }else{
     total_fallthru++;
+
+    // We predicted the branch correctly
+    if(!predict_taken){
+      correctly_predicted++;
+    }
+    // If counter is in a state that will be changed
+    if(interstate){
+      SET_COUNTER(pc % rows, hist_state, loc_counter - 1);
+    }
+    // Change the history to reflect that the branch was NOT TAKEN
     GHIST_NTAKE(hist_state);
   }
 }
@@ -104,8 +137,11 @@ void init_globals(){
 
   // Counter related stuff
   n = KnobN.Value();
-  top_n = (int) pow(2, (double) n);
-  taken_starts = top_n / 2;
+  top_n = (int) pow(2, (double) n) - 1;
+  taken_starts = (top_n + 1) / 2;
+
+  cout << "n: " << n << " top_n: "; 
+  cout << top_n << " taken_starts: " << taken_starts << endl;
 
   // We need to change the function pointer here for two bit counter
   if(n == TWO){
@@ -165,6 +201,8 @@ VOID Fini(int, VOID * v) {
     string filename;
     std::ofstream out;
     filename =  KnobOutputFile.Value();
+
+    accuracy = (float) correctly_predicted / total_branches;
 
     out.open(filename.c_str());
     out << "m: " << KnobM.Value() << endl;
