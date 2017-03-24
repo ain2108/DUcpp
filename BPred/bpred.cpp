@@ -71,6 +71,34 @@ void print_local_counters(){
   } 
 }
 
+/*  Since two bit counters transition differently from the 
+    general n counters, we want to have a separate definition for them */
+// Invoked once per dynamic branch instruction
+// pc: The address of the branch
+// taken: Non zero if a branch is taken
+// 2-bit counter version
+VOID DoBranch2BIT(ADDRINT pc, BOOL taken) {
+  total_branches++;
+  if(taken){
+    total_taken++;
+    GHIST_TAKE(hist_state);
+  }else{
+    total_fallthru++;
+    GHIST_NTAKE(hist_state);
+  }
+}
+
+// the general case
+VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
+  total_branches++;
+  if(taken){
+    total_taken++;
+    GHIST_TAKE(hist_state);
+  }else{
+    total_fallthru++;
+    GHIST_NTAKE(hist_state);
+  }
+}
 
 void init_globals(){
 
@@ -106,38 +134,6 @@ void init_globals(){
   SET_COUNTER(1, 1, 10);
   print_local_counters();
 
-}
-
-
-/*  Since two bit counters transition differently from the 
-    general n counters, we want to have a separate definition for them */
-// Invoked once per dynamic branch instruction
-// pc: The address of the branch
-// taken: Non zero if a branch is taken
-
-
-// 2-bit counter version
-VOID DoBranch2BIT(ADDRINT pc, BOOL taken) {
-  total_branches++;
-  if(taken){
-    total_taken++;
-    GHIST_TAKE(hist_state);
-  }else{
-    total_fallthru++;
-    GHIST_NTAKE(hist_state);
-  }
-}
-
-// the general case
-VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
-  total_branches++;
-  if(taken){
-    total_taken++;
-    GHIST_TAKE(hist_state);
-  }else{
-    total_fallthru++;
-    GHIST_NTAKE(hist_state);
-  }
 }
 
 // Called once per runtime image load
