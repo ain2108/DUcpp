@@ -124,11 +124,11 @@ VOID DoBranch2BIT(ADDRINT pc, BOOL taken) {
     }
     // Only when we are Strongly Not Taken do we change NOT to
     // Strongly Taken. Therefore simple conditinal suffices.
-    if(loc_counter == SNT)
+    if(loc_counter == SNT){
       SET_COUNTER(entry_row, hist_state, WNT);
-    else
+    }else{
       SET_COUNTER(entry_row, hist_state, ST);
-    
+    } 
     // Change the history to reflect that the branch was TAKEN
     GHIST_TAKE(hist_state);
 
@@ -142,10 +142,11 @@ VOID DoBranch2BIT(ADDRINT pc, BOOL taken) {
     }
     // Similarly, only when we are in ST and we do not take the 
     // branch do we go into not SNT.
-    if(loc_counter == ST)
+    if(loc_counter == ST){
       SET_COUNTER(entry_row, hist_state, WT);
-    else
+    }else{
       SET_COUNTER(entry_row, hist_state, SNT);
+    }
 
     // Change the history to reflect that the branch was NOT TAKEN
     GHIST_NTAKE(hist_state);
@@ -220,10 +221,11 @@ VOID DoBranch2BITNoHist(ADDRINT pc, BOOL taken) {
     }
     // Only when we are Strongly Not Taken do we change NOT to
     // Strongly Taken. Therefore simple conditinal suffices.
-    if(loc_counter == SNT)
+    if(loc_counter == SNT){
       SET_COUNTER(entry_row, 0, WNT);
-    else
+    }else{
       SET_COUNTER(entry_row, 0, ST);
+    }
   
   // Branch was not taken 
   }else{
@@ -235,10 +237,11 @@ VOID DoBranch2BITNoHist(ADDRINT pc, BOOL taken) {
     }
     // Similarly, only when we are in ST and we do not take the 
     // branch do we go into not SNT.
-    if(loc_counter == ST)
+    if(loc_counter == ST){
       SET_COUNTER(entry_row, 0, WT);
-    else
+    }else{
       SET_COUNTER(entry_row, 0, SNT);
+    }
   }
 }
 
