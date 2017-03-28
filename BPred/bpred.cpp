@@ -5,6 +5,7 @@
   1) To keep high performace and minimize the number of instructions
   in DoBranch() code, I have 4 different functions out of which
   DoBranch function pointer is going to point to one. 
+  Ignore{
   2) Eventhough I have been reading contradicting information, I
   settled on implementing the 2-BIT counter according to the following
   table:
@@ -15,7 +16,7 @@
     | WNT     | ST  | SNT |
     | WT      | ST  | SNT |
     | ST      | ST  | WT  |
-    +---------+-----+-----+
+    +---------+-----+-----+ }
   3) I am aware that the code is a monstrosity. The reason for all these
   globals is to not pass states around. The table of counters is allocated
   in such weird manner to avoid int** (an array of integer pointers) setup,
