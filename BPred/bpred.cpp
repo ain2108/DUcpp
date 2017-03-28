@@ -429,8 +429,8 @@ VOID Fini(int, VOID * v) {
 
     out.close();
 
-    fprintf(stdout, "(%d, %d, %d)\t", n, m, k);
-    cout << setprecision(3) << accuracy << endl;
+    // fprintf(stdout, "(%d, %d, %d)\t", n, m, k);
+    // cout << setprecision(3) << accuracy << endl;
 
     // print_local_counters();
     // Cleanuup
