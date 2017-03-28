@@ -119,6 +119,7 @@ void print_globals(){
 // pc: The address of the branch
 // taken: Non zero if a branch is taken
 // 2-bit counter version
+// NOT USED
 VOID DoBranch2BIT(ADDRINT pc, BOOL taken) {
   // We know that this is a branch, so increment
   total_branches++;
@@ -216,6 +217,7 @@ VOID DoBranchGeneral(ADDRINT pc, BOOL taken) {
 
 /* These function as for the global-history-less option */
 // 2-bit counter historyless version
+// NOT USED
 VOID DoBranch2BITNoHist(ADDRINT pc, BOOL taken) {
   // We know that this is a branch, so increment
   total_branches++;
@@ -321,19 +323,19 @@ void init_globals(){
   m = KnobM.Value();
   nub = sizeof(int) * 8 - m;
 
+  // NOT USING
   // We need to change the function pointer here for two bit counter
-  if(n == TWO){
-    if(m != 0){
-      DoBranch = DoBranch2BIT;
-    }else{
-      DoBranch = DoBranch2BITNoHist;
-    }
+  // if(n == TWO){
+  //   if(m != 0){
+  //     DoBranch = DoBranch2BIT;
+  //   }else{
+  //     DoBranch = DoBranch2BITNoHist;
+  //   }
+  // }else{
+  if(m != 0){
+    DoBranch = DoBranchGeneral;
   }else{
-    if(m != 0){
-      DoBranch = DoBranchGeneral;
-    }else{
-      DoBranch = DoBranchGeneralNoHist;
-    }
+    DoBranch = DoBranchGeneralNoHist;
   }
 
   hist_state = 0; //Initialize the counter to 0
@@ -348,6 +350,8 @@ void init_globals(){
 
 }
 
+
+// To make sure that the input is correct
 bool check_input(){
   
   // Make sure provided k makes sense
