@@ -38,6 +38,7 @@ VOID Trace(TRACE trace, VOID *v) {
 }
 
 VOID Fini(INT32 code, VOID *v) {
+	fprintf(stderr, "%p\n", v);
 }
 
 INT32 Usage()
