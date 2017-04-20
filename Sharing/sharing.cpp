@@ -8,7 +8,7 @@ KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "sharing.out", 
 
 // This analysis routine is called on every memory reference.
 VOID MemRef(THREADID tid, VOID* addr) {
-	fprintf(stdout, "%p vs %ld\n", v, (unsigned long) v);
+	fprintf(stdout, "%p vs %ld\n", addr, (unsigned long) addr);
 }
 
 // Note: Instrumentation function adapted from ManualExamples/pinatrace.cpp
