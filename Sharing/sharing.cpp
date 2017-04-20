@@ -39,6 +39,7 @@ VOID Trace(TRACE trace, VOID *v) {
 
 VOID Fini(INT32 code, VOID *v) {
 	fprintf(stdout, "%p\n", v);
+	cout << "hello?\n";
 }
 
 INT32 Usage()
