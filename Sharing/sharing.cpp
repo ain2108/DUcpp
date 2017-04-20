@@ -8,6 +8,7 @@ KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "sharing.out", 
 
 // This analysis routine is called on every memory reference.
 VOID MemRef(THREADID tid, VOID* addr) {
+	fprintf(stdout, "%p vs %ld\n", v, (unsigned long) v);
 }
 
 // Note: Instrumentation function adapted from ManualExamples/pinatrace.cpp
@@ -39,8 +40,6 @@ VOID Trace(TRACE trace, VOID *v) {
 }
 
 VOID Fini(INT32 code, VOID *v) {
-	fprintf(stdout, "%p\n", v);
-	cout << "hello?\n";
 }
 
 INT32 Usage()
