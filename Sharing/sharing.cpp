@@ -56,12 +56,12 @@ public:
 
 VOID MemRef(THREADID tid, VOID* addr) {
 
+	PIN_MutexLock(map_lock);
 	unsigned long uaddr = (unsigned long) addr;
 	unsigned long block_addr = ((uaddr >> 6) << 6);
 	int word_in_block = (uaddr & word_mask) >> 2;
 	//cout << uaddr << " " << block_addr << " " << word_in_block << endl;
 
-	PIN_MutexLock(map_lock);
 	//cout << "locked " << (char) tid << " vs " << tid << endl;
 
 	/* Check if we have that block in the map already */
@@ -114,7 +114,7 @@ void print_false_shared(){
 	for(it = blocks.begin(); it != blocks.end(); ++it){
 		if(it->second->status == FALSE_SHARED){
 	 		cout << it->first << endl;
-	 		count++;
+	 		count++; 
 	 	}
 	}
 	cout << "total false shared: " << count << endl;
