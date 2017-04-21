@@ -108,12 +108,12 @@ VOID MemRef(THREADID tid, VOID* addr) {
 
 void print_false_shared(){
 	int count = 0;
-	for(auto pair : blocks){
-		if(pair.second->status == FALSE_SHARED){
-			cout << pair.first << endl;
-			count++;
-		}
-	}
+	// for(auto pair : blocks){
+	// 	if(pair.second->status == FALSE_SHARED){
+	// 		cout << pair.first << endl;
+	// 		count++;
+	// 	}
+	// }
 	cout << "total false shared: " << count << endl;
 }
 
