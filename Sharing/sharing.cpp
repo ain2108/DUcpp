@@ -59,17 +59,17 @@ VOID MemRef(THREADID tid, VOID* addr) {
 	unsigned long uaddr = (unsigned long) addr;
 	unsigned long block_addr = ((uaddr >> 6) << 6);
 	int word_in_block = (uaddr & word_mask) >> 2;
-	cout << uaddr << " " << block_addr << " " << word_in_block << endl;
+	//cout << uaddr << " " << block_addr << " " << word_in_block << endl;
 
 	PIN_MutexLock(map_lock);
-	cout << "locked " << (char) tid << " vs " << tid << endl;
+	//cout << "locked " << (char) tid << " vs " << tid << endl;
 
 	/* Check if we have that block in the map already */
 	if(blocks.find(block_addr) == blocks.end()){
 		Block *b = new Block((char) tid, word_in_block);
 		b->word_accessed[word_in_block] = (char) tid;
 		blocks[block_addr] = b;
-		cout << "created new block\n";
+		//cout << "created new block\n";
 	/* If the block is already in the map, we would like to work with it */
 	}else{
 
@@ -110,12 +110,13 @@ VOID MemRef(THREADID tid, VOID* addr) {
 
 void print_false_shared(){
 	int count = 0;
-	// for(auto pair : blocks){
-	// 	if(pair.second->status == FALSE_SHARED){
-	// 		cout << pair.first << endl;
-	// 		count++;
-	// 	}
-	// }
+	map<unsigned long, Block *>::iterator it;
+	for(it = blocks.begin(); it != blocks.end(); ++it){
+		if(it->second->status == FALSE_SHARED){
+	 		cout << it->first << endl;
+	 		count++;
+	 	}
+	}
 	cout << "total false shared: " << count << endl;
 }
 
