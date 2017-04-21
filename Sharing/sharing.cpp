@@ -8,7 +8,7 @@
 #include <iostream>
 #include <map>
 #include <string.h>
-#include <mutex.h>
+#include <mutex>
 
 using namespace std;
 
@@ -24,9 +24,9 @@ using namespace std;
 unsigned long word_mask = 0x3c;
 
 class Block;
-map<unsigned long, Block *> blocks;
-PIN_MUTEX * map_lock;
-mutex m;
+static map<unsigned long, Block *> blocks;
+static PIN_MUTEX * map_lock;
+static mutex m;
 
 
 class Block{
