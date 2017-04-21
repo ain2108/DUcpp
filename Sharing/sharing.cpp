@@ -54,6 +54,7 @@ public:
 	}
 };
 
+static int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
 
 	PIN_MutexLock(map_lock);
@@ -69,6 +70,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		Block *b = new Block((char) tid, word_in_block);
 		b->word_accessed[word_in_block] = (char) tid;
 		blocks[block_addr] = b;
+		blocks_used++;
 		//cout << "created new block\n";
 	/* If the block is already in the map, we would like to work with it */
 	}else{
@@ -118,6 +120,7 @@ void print_false_shared(){
 	 	}
 	}
 	cout << "total false shared: " << count << endl;
+	cout << "total blocks created: " << blocks_used << endl;
 }
 
 KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "sharing.out", "file name for falsely-shared cache block list");
