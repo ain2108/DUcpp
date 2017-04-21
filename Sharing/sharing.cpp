@@ -71,7 +71,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		b->word_accessed[word_in_block] = (char) tid;
 		blocks[block_addr] = b;
 		blocks_used++;
-		//cout << "created new block\n";
+		cout << "created new block " << block_addr << endl;
 	/* If the block is already in the map, we would like to work with it */
 	}else{
 
