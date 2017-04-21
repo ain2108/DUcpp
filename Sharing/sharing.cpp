@@ -56,10 +56,10 @@ public:
 	}
 };
 
-vector<vector<unsigned long>> accesses(MAX_THREAD_ID);
+vector<vector<unsigned long> > accesses(MAX_THREAD_ID);
 
 VOID MemRef(THREADID tid, VOID* addr) {
-	accesses[(int) tid].push_back((unsigned long addr));
+	accesses[(int) tid].push_back((unsigned long) addr);
 }
 
 static int blocks_used = 0;
@@ -172,11 +172,11 @@ VOID Trace(TRACE trace, VOID *v) {
 }
 
 VOID Fini(INT32 code, VOID *v) {
-	vector<vector<unsigned long>>::iterator it_outer;
+
 	vector<unsigned long>::iterator it_inner;
 
 	for(int i = 0; i < accesses.size(); ++i){
-		if(accesses[i].emptry())
+		if(accesses[i].empty())
 			continue;
 
 		for(it_inner = accesses[i].begin(); it_inner != accesses[i].end(); ++it_inner){
