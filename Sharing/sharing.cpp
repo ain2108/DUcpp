@@ -62,7 +62,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 	cout << uaddr << " " << block_addr << " " << word_in_block << endl;
 
 	PIN_MutexLock(map_lock);
-	cout << "locked " << (char tid) << " vs " << tid << endl;
+	cout << "locked " << (char) tid << " vs " << tid << endl;
 
 	/* Check if we have that block in the map already */
 	if(blocks.find(block_addr) == blocks.end()){
