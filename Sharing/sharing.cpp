@@ -59,7 +59,7 @@ public:
 static int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
 
-	//PIN_MutexLock(map_lock);
+	PIN_MutexLock(map_lock);
 	unsigned long uaddr = (unsigned long) addr;
 	unsigned long block_addr = ((uaddr >> 6) << 6);
 	int word_in_block = (uaddr & word_mask) >> 2;
@@ -83,7 +83,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		/* If we know that a block is true shared already, we dont have to do anything, can go for a smoke. */
 		if(b->status == TRUE_SHARED){
 			//TODO: unlock 
-			//PIN_MutexUnlock(map_lock);
+			PIN_MutexUnlock(map_lock);
 			return;
 		}
 
@@ -91,7 +91,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		ownership is set NO_THREAD */
 		if(b->first_owner == (char) tid){
 			//TODO: unlock
-			//PIN_MutexUnlock(map_lock);
+			PIN_MutexUnlock(map_lock);
 			return;
 		}
 
@@ -108,7 +108,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 	}
 
 	//TODO: Unlock
-	//PIN_MutexUnlock(map_lock);
+	PIN_MutexUnlock(map_lock);
 	return;
 }
 
