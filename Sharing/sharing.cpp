@@ -120,10 +120,10 @@ void print_false_shared(){
 KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "sharing.out", "file name for falsely-shared cache block list");
 
 // This analysis routine is called on every memory reference.
-VOID MemRef(THREADID tid, VOID* addr) {
-	unsigned long uaddr = (unsigned long) addr;
-	cout << uaddr << " by thread " << tid << endl;
-}
+// VOID MemRef(THREADID tid, VOID* addr) {
+// 	unsigned long uaddr = (unsigned long) addr;
+// 	cout << uaddr << " by thread " << tid << endl;
+// }
 
 // Note: Instrumentation function adapted from ManualExamples/pinatrace.cpp
 // It is called for each Trace and instruments reads and writes
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
     /* Init the lock */
     if(PIN_MutexInit(map_lock) == false){
     	cout << "fire\n";
-    	return;
+    	return 1;
     }
 
     TRACE_AddInstrumentFunction(Trace, 0);
