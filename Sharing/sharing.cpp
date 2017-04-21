@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include <string.h>
+#include <mutex.h>
 
 using namespace std;
 
@@ -25,6 +26,8 @@ unsigned long word_mask = 0x3c;
 class Block;
 map<unsigned long, Block *> blocks;
 PIN_MUTEX * map_lock;
+mutex m;
+
 
 class Block{
 public:
@@ -57,6 +60,7 @@ public:
 static int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
 
+	m.lock();
 	PIN_MutexLock(map_lock);
 	unsigned long uaddr = (unsigned long) addr;
 	unsigned long block_addr = ((uaddr >> 6) << 6);
@@ -82,6 +86,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		if(b->status == TRUE_SHARED){
 			//TODO: unlock 
 			PIN_MutexUnlock(map_lock);
+			m.unlock();
 			return;
 		}
 
@@ -90,6 +95,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		if(b->first_owner == (char) tid){
 			//TODO: unlock
 			PIN_MutexUnlock(map_lock);
+			m.unlock();
 			return;
 		}
 
@@ -107,6 +113,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 
 	//TODO: Unlock
 	PIN_MutexUnlock(map_lock);
+	m.unlock();
 	return;
 }
 
