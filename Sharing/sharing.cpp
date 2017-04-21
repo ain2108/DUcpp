@@ -171,6 +171,8 @@ int main(int argc, char *argv[])
     if (PIN_Init(argc, argv)) return Usage();
 
     cout << "morning!!!!!\n";
+    PIN_MUTEX * temp = new PIN_MUTEX();
+    map_lock = temp;
     /* Init the lock */
     if(PIN_MutexInit(map_lock) == false){
     	cout << "fire\n";
