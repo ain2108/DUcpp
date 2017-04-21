@@ -175,7 +175,7 @@ VOID Fini(INT32 code, VOID *v) {
 
 	vector<unsigned long>::iterator it_inner;
 
-	for(int i = 0; i < accesses.size(); ++i){
+	for(int i = 0; i < MAX_THREAD_ID; ++i){
 		if(accesses[i].empty())
 			continue;
 
