@@ -60,6 +60,7 @@ static int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
 
 	PIN_MutexLock(map_lock);
+	cout << "locked by " << tid << endl;
 	unsigned long uaddr = (unsigned long) addr;
 	unsigned long block_addr = ((uaddr >> 6) << 6);
 	int word_in_block = (uaddr & word_mask) >> 2;
@@ -73,7 +74,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		b->word_accessed[word_in_block] = (char) tid;
 		blocks[block_addr] = b;
 		blocks_used++;
-		cout << "created new block " << block_addr << endl;
+		//cout << "created new block " << block_addr << endl;
 	/* If the block is already in the map, we would like to work with it */
 	}else{
 
@@ -84,6 +85,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		if(b->status == TRUE_SHARED){
 			//TODO: unlock 
 			PIN_MutexUnlock(map_lock);
+			cout << "unlocked by " << tid << endl;
 			return;
 		}
 
@@ -92,6 +94,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		if(b->first_owner == (char) tid){
 			//TODO: unlock
 			PIN_MutexUnlock(map_lock);
+			cout << "unlocked by " << tid << endl;
 			return;
 		}
 
@@ -109,6 +112,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 
 	//TODO: Unlock
 	PIN_MutexUnlock(map_lock);
+	cout << "unlocked by " << tid << endl;
 	return;
 }
 
