@@ -56,8 +56,14 @@ public:
 	}
 };
 
-static int blocks_used = 0;
+vector<vector<unsigned long>> accesses(MAX_THREAD_ID);
+
 VOID MemRef(THREADID tid, VOID* addr) {
+	accesses[(int) tid].push_back((unsigned long addr));
+}
+
+static int blocks_used = 0;
+VOID MemRefProcess(THREADID tid, VOID* addr) {
 
 	PIN_MutexLock(map_lock);
 	cout << "locked by " << tid << endl;
@@ -166,6 +172,19 @@ VOID Trace(TRACE trace, VOID *v) {
 }
 
 VOID Fini(INT32 code, VOID *v) {
+	vector<vector<unsigned long>>::iterator it_outer;
+	vector<unsigned long>::iterator it_inner;
+
+	for(int i = 0; i < accesses.size(); ++i){
+		if(accesses[i].emptry())
+			continue;
+
+		for(it_inner = accesses[i].begin(); it_inner != accesses[i].end(); ++it_inner){
+			MemRef((THREADID) i, (VOID *) (*it_inner));
+		}
+	}
+
+
 	print_false_shared();
 }
 
