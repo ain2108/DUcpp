@@ -84,8 +84,8 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		/* If we know that a block is true shared already, we dont have to do anything, can go for a smoke. */
 		if(b->status == TRUE_SHARED){
 			//TODO: unlock 
-			PIN_MutexUnlock(map_lock);
 			cout << "unlocked by " << tid << endl;
+			PIN_MutexUnlock(map_lock);
 			return;
 		}
 
@@ -93,8 +93,8 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		ownership is set NO_THREAD */
 		if(b->first_owner == (char) tid){
 			//TODO: unlock
-			PIN_MutexUnlock(map_lock);
 			cout << "unlocked by " << tid << endl;
+			PIN_MutexUnlock(map_lock);
 			return;
 		}
 
@@ -111,8 +111,8 @@ VOID MemRef(THREADID tid, VOID* addr) {
 	}
 
 	//TODO: Unlock
-	PIN_MutexUnlock(map_lock);
 	cout << "unlocked by " << tid << endl;
+	PIN_MutexUnlock(map_lock);
 	return;
 }
 
