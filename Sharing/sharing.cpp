@@ -25,7 +25,7 @@ unsigned long word_mask = 0x3c;
 
 class Block;
 static map<unsigned long, Block *> blocks;
-static PIN_MUTEX * map_lock;
+static PIN_MUTEX map_lock;
 
 
 class Block{
@@ -61,10 +61,10 @@ vector<vector<unsigned long> > accesses(MAX_THREAD_ID);
 
 static int mem_ref_counter = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
-	//PIN_MutexLock(map_lock);
+	PIN_MutexLock(&map_lock);
 	accesses[(int) tid].push_back((unsigned long) addr);
 	mem_ref_counter++;
-	//PIN_MutexUnlock(map_lock);
+	PIN_MutexUnlock(&map_lock);
 	//cout << tid << endl;
 }
 
@@ -177,7 +177,7 @@ VOID Trace(TRACE trace, VOID *v) {
 	}
       }
   }
-  PIN_MutexUnlock(map_lock);
+  PIN_MutexUnock(map_lock);
 }
 
 VOID Fini(INT32 code, VOID *v) {
@@ -217,10 +217,9 @@ int main(int argc, char *argv[])
     if (PIN_Init(argc, argv)) return Usage();
 
     cout << "morning!!!!!\n";
-    PIN_MUTEX * temp = new PIN_MUTEX();
-    map_lock = temp;
+
     /* Init the lock */
-    if(PIN_MutexInit(map_lock) == false){
+    if(PIN_MutexInit(&map_lock) == false){
     	cout << "fire\n";
     	return 1;
     }
