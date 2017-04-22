@@ -62,6 +62,7 @@ LOCALVAR vector<vector<unsigned long> > accesses(MAX_THREAD_ID);
 LOCALVAR int mem_ref_counter = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
 	PIN_MutexLock(&map_lock);
+	cout << "tiiiiiiiiid " << tid << endl;
 	accesses[(int) tid].push_back((unsigned long) addr);
 	mem_ref_counter++;
 	PIN_MutexUnlock(&map_lock);
@@ -153,7 +154,6 @@ KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "sharing.out", 
 // It is called for each Trace and instruments reads and writes
 VOID Trace(TRACE trace, VOID *v) {
   // Visit every basic block  in the trace
-	cout << " trace was called\n";
   for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl)) {
       for (INS ins = BBL_InsHead(bbl); INS_Valid(ins); ins = INS_Next(ins)) {
 
