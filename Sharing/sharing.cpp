@@ -60,6 +60,7 @@ vector<vector<unsigned long> > accesses(MAX_THREAD_ID);
 
 VOID MemRef(THREADID tid, VOID* addr) {
 	accesses[(int) tid].push_back((unsigned long) addr);
+	cout << tid << endl;
 }
 
 static int blocks_used = 0;
