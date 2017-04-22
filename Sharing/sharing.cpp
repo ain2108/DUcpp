@@ -177,7 +177,7 @@ VOID Trace(TRACE trace, VOID *v) {
 	}
       }
   }
-  PIN_MutexUnock(map_lock);
+  PIN_MutexUnlock(map_lock);
 }
 
 VOID Fini(INT32 code, VOID *v) {
