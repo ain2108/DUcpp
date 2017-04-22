@@ -177,11 +177,14 @@ VOID Fini(INT32 code, VOID *v) {
 	vector<unsigned long>::iterator it_inner;
 
 	for(int i = 0; i < MAX_THREAD_ID; ++i){
-		if(accesses[i].empty())
+		if(accesses[i].empty()){
+			cout << "skip\n";
 			continue;
+		}
 
+		cout << "processing " << i << endl;
 		for(it_inner = accesses[i].begin(); it_inner != accesses[i].end(); ++it_inner){
-			MemRef((THREADID) i, (VOID *) (*it_inner));
+			MemRefProcess((THREADID) i, (VOID *) (*it_inner));
 		}
 	}
 
