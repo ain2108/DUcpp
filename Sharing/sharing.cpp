@@ -62,8 +62,10 @@ LOCALVAR int mem_ref_counter = 0;
 LOCALVAR PIN_MUTEX map_lock;
 VOID MemRef(THREADID tid, VOID* addr) {
 	PIN_MutexLock(&map_lock);
+	{
 	//accesses[(int) tid].push_back((unsigned long) addr);
 	mem_ref_counter++;
+	}
 	PIN_MutexUnlock(&map_lock);
 	//cout << tid << endl;
 }
