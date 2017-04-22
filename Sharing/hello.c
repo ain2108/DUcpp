@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define NUM_WORKERS	  4
+#define NUM_WORKERS	  15
 #define BYTES_PER_BLOCK   64
 #define BLOCKS_PER_ARRAY  1000
 
