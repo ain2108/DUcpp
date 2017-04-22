@@ -25,7 +25,6 @@ unsigned long word_mask = 0x3c;
 
 class Block;
 LOCALVAR map<unsigned long, Block *> blocks;
-LOCALVAR PIN_MUTEX map_lock;
 
 
 class Block{
@@ -60,10 +59,10 @@ LOCALVAR vector<vector<unsigned long> > accesses(MAX_THREAD_ID);
 
 
 LOCALVAR int mem_ref_counter = 0;
+LOCALVAR PIN_MUTEX map_lock;
 VOID MemRef(THREADID tid, VOID* addr) {
 	PIN_MutexLock(&map_lock);
-	cout << "tiiiiiiiiid " << tid << endl;
-	accesses[(int) tid].push_back((unsigned long) addr);
+	//accesses[(int) tid].push_back((unsigned long) addr);
 	mem_ref_counter++;
 	PIN_MutexUnlock(&map_lock);
 	//cout << tid << endl;
@@ -185,7 +184,7 @@ VOID Fini(INT32 code, VOID *v) {
 
 	for(int i = 0; i < MAX_THREAD_ID; ++i){
 		if(accesses[i].empty()){
-			cout << "skip\n";
+			// cout << "skip\n";
 			continue;
 		}
 
