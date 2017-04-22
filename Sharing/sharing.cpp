@@ -183,7 +183,7 @@ VOID Fini(INT32 code, VOID *v) {
 			continue;
 		}
 
-		cout << tid << " has " << accesses[i].size() << endl;
+		cout << i << " has " << accesses[i].size() << endl;
 		total_memrefs+= accesses[i].size();
 		for(it_inner = accesses[i].begin(); it_inner != accesses[i].end(); ++it_inner){
 			MemRefProcess((THREADID) i, (VOID *) (*it_inner));
