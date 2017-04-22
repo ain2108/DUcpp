@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "pin.H"
+#include <iostream>
 
 #define MAX_THREAD_ID 32
 
