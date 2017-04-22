@@ -24,8 +24,8 @@ using namespace std;
 unsigned long word_mask = 0x3c;
 
 class Block;
-static map<unsigned long, Block *> blocks;
-static PIN_MUTEX map_lock;
+LOCALVAR map<unsigned long, Block *> blocks;
+LOCALVAR PIN_MUTEX map_lock;
 
 
 class Block{
@@ -56,10 +56,10 @@ public:
 	}
 };
 
-vector<vector<unsigned long> > accesses(MAX_THREAD_ID);
+LOCALVAR vector<vector<unsigned long> > accesses(MAX_THREAD_ID);
 
 
-static int mem_ref_counter = 0;
+LOCALVAR int mem_ref_counter = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
 	PIN_MutexLock(&map_lock);
 	accesses[(int) tid].push_back((unsigned long) addr);
@@ -68,7 +68,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 	//cout << tid << endl;
 }
 
-static int blocks_used = 0;
+LOCALVAR int blocks_used = 0;
 VOID MemRefProcess(THREADID tid, VOID* addr) {
 
 	// PIN_MutexLock(map_lock);
