@@ -153,7 +153,6 @@ KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "sharing.out", 
 // It is called for each Trace and instruments reads and writes
 VOID Trace(TRACE trace, VOID *v) {
   // Visit every basic block  in the trace
-	PIN_MutexLock(map_lock);
 	cout << " trace was called\n";
   for (BBL bbl = TRACE_BblHead(trace); BBL_Valid(bbl); bbl = BBL_Next(bbl)) {
       for (INS ins = BBL_InsHead(bbl); INS_Valid(ins); ins = INS_Next(ins)) {
@@ -177,7 +176,6 @@ VOID Trace(TRACE trace, VOID *v) {
 	}
       }
   }
-  PIN_MutexUnock(map_lock);
 }
 
 VOID Fini(INT32 code, VOID *v) {
