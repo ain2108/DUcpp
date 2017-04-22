@@ -58,9 +58,14 @@ public:
 
 vector<vector<unsigned long> > accesses(MAX_THREAD_ID);
 
+
+static int mem_ref_counter = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
+	PIN_MutexLock(map_lock);
 	accesses[(int) tid].push_back((unsigned long) addr);
-	cout << tid << endl;
+	mem_ref_counter++;
+	PIN_MutexUnlock(map_lock);
+	//cout << tid << endl;
 }
 
 static int blocks_used = 0;
@@ -193,6 +198,8 @@ VOID Fini(INT32 code, VOID *v) {
 
 
 	print_false_shared();
+
+	cout << "memref was called " << mem_ref_counter << " times " << endl;
 }
 
 INT32 Usage()
