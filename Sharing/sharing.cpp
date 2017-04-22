@@ -66,8 +66,8 @@ VOID MemRef(THREADID tid, VOID* addr) {
 static int blocks_used = 0;
 VOID MemRefProcess(THREADID tid, VOID* addr) {
 
-	PIN_MutexLock(map_lock);
-	cout << "locked by " << tid << endl;
+	// PIN_MutexLock(map_lock);
+	// cout << "locked by " << tid << endl;
 	unsigned long uaddr = (unsigned long) addr;
 	unsigned long block_addr = ((uaddr >> 6) << 6);
 	int word_in_block = (uaddr & word_mask) >> 2;
@@ -91,8 +91,8 @@ VOID MemRefProcess(THREADID tid, VOID* addr) {
 		/* If we know that a block is true shared already, we dont have to do anything, can go for a smoke. */
 		if(b->status == TRUE_SHARED){
 			//TODO: unlock 
-			cout << "unlocked by " << tid << endl;
-			PIN_MutexUnlock(map_lock);
+			// cout << "unlocked by " << tid << endl;
+			// PIN_MutexUnlock(map_lock);
 			return;
 		}
 
@@ -100,8 +100,8 @@ VOID MemRefProcess(THREADID tid, VOID* addr) {
 		ownership is set NO_THREAD */
 		if(b->first_owner == (char) tid){
 			//TODO: unlock
-			cout << "unlocked by " << tid << endl;
-			PIN_MutexUnlock(map_lock);
+			// cout << "unlocked by " << tid << endl;
+			// PIN_MutexUnlock(map_lock);
 			return;
 		}
 
@@ -118,8 +118,8 @@ VOID MemRefProcess(THREADID tid, VOID* addr) {
 	}
 
 	//TODO: Unlock
-	cout << "unlocked by " << tid << endl;
-	PIN_MutexUnlock(map_lock);
+	// cout << "unlocked by " << tid << endl;
+	// PIN_MutexUnlock(map_lock);
 	return;
 }
 
@@ -175,6 +175,7 @@ VOID Trace(TRACE trace, VOID *v) {
 VOID Fini(INT32 code, VOID *v) {
 
 	vector<unsigned long>::iterator it_inner;
+	int total_memrefs = 0;
 
 	for(int i = 0; i < MAX_THREAD_ID; ++i){
 		if(accesses[i].empty()){
@@ -182,11 +183,13 @@ VOID Fini(INT32 code, VOID *v) {
 			continue;
 		}
 
-		cout << "processing " << i << endl;
+		cout << tid << " has " << accesses[i].size() << endl;
+		total_memrefs+= accesses[i].size();
 		for(it_inner = accesses[i].begin(); it_inner != accesses[i].end(); ++it_inner){
 			MemRefProcess((THREADID) i, (VOID *) (*it_inner));
 		}
 	}
+	cout << "total accesses " << total_memrefs << endl;
 
 
 	print_false_shared();
