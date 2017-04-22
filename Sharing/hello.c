@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #define NUM_WORKERS	  4
 #define BYTES_PER_BLOCK   64
@@ -36,6 +37,7 @@ int main(int argc, char *argv[]) {
    long t;
    
    arr = (int*) malloc(1000 * sizeof(int));
+   memset(arr, 0, 1000 * sizeof(int));
    assert(arr);
 
    for (t = 0; t < NUM_WORKERS; t++) {
