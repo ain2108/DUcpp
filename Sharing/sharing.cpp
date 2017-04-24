@@ -131,15 +131,31 @@ VOID MemRefProcess(THREADID tid, VOID* addr) {
 }
 
 void print_false_shared(){
-	int count = 0;
+	int count_false_shared = 0;
+	int count_true_shared = 0;
+	int count_private = 0;
 	map<unsigned long, Block *>::iterator it;
 	for(it = blocks.begin(); it != blocks.end(); ++it){
 		if(it->second->status == FALSE_SHARED){
-	 		cout << it->first << endl;
-	 		count++; 
+	 		//cout << it->first << endl;
+	 		count_false_shared++; 
 	 	}
+
+	 	if(it->second->status == TRUE_SHARED){
+	 		//cout << it->first << endl;
+	 		count_true_shared++; 
+	 	}
+
+	 	if(it->second->status == PRIVATE){
+	 		//cout << it->first << endl;
+	 		count_private++; 
+	 	}
+
 	}
-	cout << "total false shared: " << count << endl;
+	cout << "total false shared: " << count_false_shared << endl;
+	cout << "total true shared: " << count_true_shared << endl;
+	cout << "total private: " << count_private << endl;
+
 	cout << "total blocks created: " << blocks_used << endl;
 }
 
