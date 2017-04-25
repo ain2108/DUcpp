@@ -141,23 +141,19 @@ VOID MemRef(THREADID tid, VOID* addr) {
 			
 			if(b->word_accessed[word_in_block] == (char) NO_THREAD){
 				b->word_accessed[word_in_block] = (char) tid;
-				b->first_owner = NO_THREAD;
-				PIN_MutexUnlock(&map_lock);
-				return;
-			}
-
-
-			if(b->word_accessed[word_in_block] != (char) tid){
-				b->word_accessed[word_in_block] = (char) tid;
-				b->status = TRUE_SHARED;
-				b->first_owner = NO_THREAD;
 				PIN_MutexUnlock(&map_lock);
 				return;
 			}
 
 			if(b->word_accessed[word_in_block] == (char) tid){
 				b->word_accessed[word_in_block] = (char) tid;
-				b->first_owner = NO_THREAD;
+				PIN_MutexUnlock(&map_lock);
+				return;
+			}
+
+			if(b->word_accessed[word_in_block] != (char) tid){
+				b->word_accessed[word_in_block] = (char) tid;
+				b->status = TRUE_SHARED;
 				PIN_MutexUnlock(&map_lock);
 				return;
 			}
