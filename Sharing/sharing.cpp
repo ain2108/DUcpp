@@ -2,6 +2,7 @@
 #include "pin.H"
 #include <iostream>
 #include <map>
+#include <stdexcept>
 
 #define MAX_THREAD_ID 32
 
@@ -98,45 +99,101 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		/* Lets get a pointer to that block so we can work with it*/
 		Block *b = blocks[block_addr];
 		
+
+		if(b->status == PRIVATE){
+
+			/* If no other thread has accessed this block yet */
+			if(b->first_owner == (char) tid){
+		 		b->word_accessed[word_in_block] = (char) tid;
+		 		PIN_MutexUnlock(&map_lock);
+		 		return;
+			}
+
+			/* If we are a different thread, check if the word was not touched. 
+			If so, touch and set shared */
+			if(b->word_accessed[word_in_block] == (char) NO_THREAD){
+				b->word_accessed[word_in_block] = (char) tid;
+				b->status = FALSE_SHARED;
+				b->first_owner = NO_THREAD;
+				PIN_MutexUnlock(&map_lock);
+				return;
+			}
+
+			/* If we collide with the thread, we should mark it TRUE_SHARED */
+			if(b->word_accessed[word_in_block] != (char) tid){
+				b->word_accessed[word_in_block] = (char) tid;
+				b->status = TRUE_SHARED;
+				b->first_owner = NO_THREAD;
+				PIN_MutexUnlock(&map_lock);
+				return;
+			}
+
+			throw std::invalid_argument("ERROR in PRIVATE");
+
+		}
+
+		if(b->status == FALSE_SHARED){
+			/* If we collide with the thread, we should mark it TRUE_SHARED */
+			if(b->word_accessed[word_in_block] != (char) tid){
+				b->word_accessed[word_in_block] = (char) tid;
+				b->status = TRUE_SHARED;
+				b->first_owner = NO_THREAD;
+				PIN_MutexUnlock(&map_lock);
+				return;
+			}
+
+			if(b->word_accessed[word_in_block] == (char) tid){
+				b->word_accessed[word_in_block] = (char) tid;
+				b->first_owner = NO_THREAD;
+				PIN_MutexUnlock(&map_lock);
+				return;
+			}
+
+			throw std::invalid_argument("ERROR in FALSE_SHARED");
+
+
+		}
+
 		/* If we know that a block is true shared already, we dont have to do anything, can go for a smoke. */
 		if(b->status == TRUE_SHARED){
-			//TODO: unlock 
-			// cout << "unlocked by " << tid << endl;
 			b->word_accessed[word_in_block] = (char) tid;
 			PIN_MutexUnlock(&map_lock);
 			return;
 		}
+
 
 		/* Lets check who the owner is. If we are that owner, then we are done. Notice, that when a block becomes shared,
 		ownership is set NO_THREAD */
-		if(b->first_owner == (char) tid){
-			//TODO: unlock
-			// cout << "unlocked by " << tid << endl;
-			b->word_accessed[word_in_block] = (char) tid;
-			PIN_MutexUnlock(&map_lock);
-			return;
-		}
+		// if(b->first_owner == (char) tid){
+		// 	//TODO: unlock
+		// 	// cout << "unlocked by " << tid << endl;
+		// 	b->word_accessed[word_in_block] = (char) tid;
+		// 	PIN_MutexUnlock(&map_lock);
+		// 	return;
+		// }
 
 		/* At this point it is left to decide if we true share or fake share */
 		/* We want to check if the word has been accessed by not us. Need to check against other threads as well as no thread */
-		if((b->word_accessed[word_in_block] != (char) NO_THREAD) && (b->word_accessed[word_in_block] != (char) tid)){
-			b->status = TRUE_SHARED;
-			PIN_MutexUnlock(&map_lock);
-			return;
-		/* We know that this is not a true shared block, but we need to make sure everyone knows that we use the word */
-		}else{
-			b->word_accessed[word_in_block] = (char) tid;
-			b->status = FALSE_SHARED;
-			b->first_owner = NO_THREAD;
-			PIN_MutexUnlock(&map_lock);
-			return;
-		}
+		// if((b->word_accessed[word_in_block] != (char) NO_THREAD) && (b->word_accessed[word_in_block] != (char) tid)){
+		// 	b->status = TRUE_SHARED;
+		// 	PIN_MutexUnlock(&map_lock);
+		// 	return;
+		//  We know that this is not a true shared block, but we need to make sure everyone knows that we use the word 
+		// }else{
+		// 	b->word_accessed[word_in_block] = (char) tid;
+		// 	b->status = FALSE_SHARED;
+		// 	b->first_owner = NO_THREAD;
+		// 	PIN_MutexUnlock(&map_lock);
+		// 	return;
+		// }
+
+
 	}
 
 	//TODO: Unlock
 	// cout << "unlocked by " << tid << endl;
 	// PIN_MutexUnlock(map_lock);
-	cout << "ERROR!!!!\n\n\n\n\n\n" << endl;
+	throw std::invalid_argument("ERROR GENERAL");
 	return;
 }
 
