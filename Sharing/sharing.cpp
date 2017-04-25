@@ -271,7 +271,6 @@ VOID Trace(TRACE trace, VOID *v) {
 
 VOID Fini(INT32 code, VOID *v) {
 
-	vector<unsigned long>::iterator it_inner;
 	// int total_memrefs = 0;
 
 	// for(int i = 0; i < MAX_THREAD_ID; ++i){
