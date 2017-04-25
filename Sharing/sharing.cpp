@@ -108,6 +108,7 @@ VOID MemRefProcess(THREADID tid, VOID* addr) {
 		if(b->first_owner == (char) tid){
 			//TODO: unlock
 			// cout << "unlocked by " << tid << endl;
+			b->word_accessed[word_in_block] = (char) tid;
 			// PIN_MutexUnlock(map_lock);
 			return;
 		}
