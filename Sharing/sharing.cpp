@@ -60,20 +60,21 @@ LOCALVAR vector<vector<unsigned long> > accesses(MAX_THREAD_ID);
 
 LOCALVAR int mem_ref_counter = 0;
 LOCALVAR PIN_MUTEX map_lock;
-VOID MemRef(THREADID tid, VOID* addr) {
-	PIN_MutexLock(&map_lock);
-	{
-	accesses[(int) tid].push_back((unsigned long) addr);
-	mem_ref_counter++;
-	}
-	PIN_MutexUnlock(&map_lock);
-	//cout << tid << endl;
-}
+// VOID MemRef(THREADID tid, VOID* addr) {
+// 	PIN_MutexLock(&map_lock);
+// 	{
+// 	accesses[(int) tid].push_back((unsigned long) addr);
+// 	mem_ref_counter++;
+// 	}
+// 	PIN_MutexUnlock(&map_lock);
+// 	//cout << tid << endl;
+// }
 
 LOCALVAR int blocks_used = 0;
-VOID MemRefProcess(THREADID tid, VOID* addr) {
+VOID MemRef(THREADID tid, VOID* addr) {
 
-	// PIN_MutexLock(map_lock);
+	PIN_MutexLock(map_lock);
+	mem_ref_counter++;
 	// cout << "locked by " << tid << endl;
 	unsigned long uaddr = (unsigned long) addr;
 	unsigned long block_addr = ((uaddr >> 6) << 6);
@@ -88,6 +89,8 @@ VOID MemRefProcess(THREADID tid, VOID* addr) {
 		b->word_accessed[word_in_block] = (char) tid;
 		blocks[block_addr] = b;
 		blocks_used++;
+		PIN_MutexUnlock(map_lock);
+		return;
 		//cout << "created new block " << block_addr << endl;
 	/* If the block is already in the map, we would like to work with it */
 	}else{
@@ -99,7 +102,8 @@ VOID MemRefProcess(THREADID tid, VOID* addr) {
 		if(b->status == TRUE_SHARED){
 			//TODO: unlock 
 			// cout << "unlocked by " << tid << endl;
-			// PIN_MutexUnlock(map_lock);
+			PIN_MutexUnlock(map_lock);
+			b->word_accessed[word_in_block] = (char) tid;
 			return;
 		}
 
@@ -109,7 +113,7 @@ VOID MemRefProcess(THREADID tid, VOID* addr) {
 			//TODO: unlock
 			// cout << "unlocked by " << tid << endl;
 			b->word_accessed[word_in_block] = (char) tid;
-			// PIN_MutexUnlock(map_lock);
+			PIN_MutexUnlock(map_lock);
 			return;
 		}
 
@@ -117,17 +121,22 @@ VOID MemRefProcess(THREADID tid, VOID* addr) {
 		/* We want to check if the word has been accessed by not us. Need to check against other threads as well as no thread */
 		if((b->word_accessed[word_in_block] != (char) NO_THREAD) && (b->word_accessed[word_in_block] != (char) tid)){
 			b->status = TRUE_SHARED;
+			PIN_MutexUnlock(map_lock);
+			return;
 		/* We know that this is not a true shared block, but we need to make sure everyone knows that we use the word */
 		}else{
 			b->word_accessed[word_in_block] = (char) tid;
 			b->status = FALSE_SHARED;
 			b->first_owner = NO_THREAD;
+			PIN_MutexUnlock(map_lock);
+			return;
 		}
 	}
 
 	//TODO: Unlock
 	// cout << "unlocked by " << tid << endl;
 	// PIN_MutexUnlock(map_lock);
+	cout << "ERROR!!!!\n\n\n\n\n\n" << endl;
 	return;
 }
 
