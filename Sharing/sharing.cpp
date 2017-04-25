@@ -138,6 +138,15 @@ VOID MemRef(THREADID tid, VOID* addr) {
 
 		if(b->status == FALSE_SHARED){
 			/* If we collide with the thread, we should mark it TRUE_SHARED */
+			
+			if(b->word_accessed[word_in_block] == (char) NO_THREAD){
+				b->word_accessed[word_in_block] = (char) tid;
+				b->first_owner = NO_THREAD;
+				PIN_MutexUnlock(&map_lock);
+				return;
+			}
+
+
 			if(b->word_accessed[word_in_block] != (char) tid){
 				b->word_accessed[word_in_block] = (char) tid;
 				b->status = TRUE_SHARED;
@@ -270,22 +279,6 @@ VOID Trace(TRACE trace, VOID *v) {
 }
 
 VOID Fini(INT32 code, VOID *v) {
-
-	// int total_memrefs = 0;
-
-	// for(int i = 0; i < MAX_THREAD_ID; ++i){
-	// 	if(accesses[i].empty()){
-	// 		// cout << "skip\n";
-	// 		continue;
-	// 	}
-
-	// 	cout << i << " has " << accesses[i].size() << endl;
-	// 	total_memrefs+= accesses[i].size();
-	// 	for(it_inner = accesses[i].begin(); it_inner != accesses[i].end(); ++it_inner){
-	// 		MemRefProcess((THREADID) i, (VOID *) (*it_inner));
-	// 	}
-	// }
-	// cout << "total accesses " << total_memrefs << endl;
 
 
 	print_false_shared();
