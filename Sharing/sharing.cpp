@@ -272,21 +272,21 @@ VOID Trace(TRACE trace, VOID *v) {
 VOID Fini(INT32 code, VOID *v) {
 
 	vector<unsigned long>::iterator it_inner;
-	int total_memrefs = 0;
+	// int total_memrefs = 0;
 
-	for(int i = 0; i < MAX_THREAD_ID; ++i){
-		if(accesses[i].empty()){
-			// cout << "skip\n";
-			continue;
-		}
+	// for(int i = 0; i < MAX_THREAD_ID; ++i){
+	// 	if(accesses[i].empty()){
+	// 		// cout << "skip\n";
+	// 		continue;
+	// 	}
 
-		cout << i << " has " << accesses[i].size() << endl;
-		total_memrefs+= accesses[i].size();
-		for(it_inner = accesses[i].begin(); it_inner != accesses[i].end(); ++it_inner){
-			MemRefProcess((THREADID) i, (VOID *) (*it_inner));
-		}
-	}
-	cout << "total accesses " << total_memrefs << endl;
+	// 	cout << i << " has " << accesses[i].size() << endl;
+	// 	total_memrefs+= accesses[i].size();
+	// 	for(it_inner = accesses[i].begin(); it_inner != accesses[i].end(); ++it_inner){
+	// 		MemRefProcess((THREADID) i, (VOID *) (*it_inner));
+	// 	}
+	// }
+	// cout << "total accesses " << total_memrefs << endl;
 
 
 	print_false_shared();
