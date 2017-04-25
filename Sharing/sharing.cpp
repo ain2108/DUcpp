@@ -2,7 +2,9 @@
 #include "pin.H"
 #include <iostream>
 #include <map>
-#include <stdexcept>
+#include <fstream>
+#include <exception>
+#include <memory>
 
 #define MAX_THREAD_ID 32
 
@@ -128,7 +130,9 @@ VOID MemRef(THREADID tid, VOID* addr) {
 				return;
 			}
 
-			throw std::invalid_argument("ERROR in PRIVATE");
+			//throw std::invalid_argument("ERROR in PRIVATE");
+			cout << "ERROR in Private" << endl;
+			std::exit(0);
 
 		}
 
@@ -149,7 +153,8 @@ VOID MemRef(THREADID tid, VOID* addr) {
 				return;
 			}
 
-			throw std::invalid_argument("ERROR in FALSE_SHARED");
+			cout << "ERROR in FALSE_SHARED" << endl;
+			std::exit(0);
 
 
 		}
@@ -193,7 +198,9 @@ VOID MemRef(THREADID tid, VOID* addr) {
 	//TODO: Unlock
 	// cout << "unlocked by " << tid << endl;
 	// PIN_MutexUnlock(map_lock);
-	throw std::invalid_argument("ERROR GENERAL");
+	
+	cout << "ERROR in General" << endl;
+	std::exit(0);
 	return;
 }
 
