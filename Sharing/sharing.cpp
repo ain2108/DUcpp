@@ -167,7 +167,7 @@ void print_false_shared(){
 	std::map<unsigned long, Block *>::iterator it;
 	for(it = blocks.begin(); it != blocks.end(); ++it){
 		if(it->second->status == FALSE_SHARED){
-	 		//cout << it->first << endl;
+	 		cout << it->first << endl;
 	 		count_false_shared++; 
 	 	}
 
