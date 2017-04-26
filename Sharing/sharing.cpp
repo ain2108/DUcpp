@@ -62,6 +62,7 @@ LOCALVAR PIN_MUTEX map_lock;
 VOID MemRef(THREADID tid, VOID* addr) {
 
 	PIN_MutexLock(&map_lock);
+
 	unsigned long block_addr = ((((unsigned long) addr) >> 6) << 6);
 	int word_in_block = (((unsigned long) addr) & word_mask) >> 2;
 
@@ -69,6 +70,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 	if(blocks.find(block_addr) == blocks.end()){
 		Block *b = new Block((char) tid, word_in_block);
 		b->word_accessed[word_in_block] = (char) tid;
+		blocks[block_addr] = b;
 		PIN_MutexUnlock(&map_lock);
 		return;
 
@@ -209,7 +211,8 @@ VOID Fini(INT32 code, VOID *v) {
 	}
     out.close();
 
-	print_false_shared();
+	//print_false_shared();
+	//cout << "memref was called " << mem_ref_counter << " times " << endl;
 }
 
 INT32 Usage()
