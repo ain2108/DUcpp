@@ -16,7 +16,7 @@
 #include <string.h>
 
 
-using namespace std;
+//using namespace std;
 
 #define BLOCK_SIZE_BYTES 64
 #define WORD_SIZE_BYTES 4
@@ -50,16 +50,16 @@ public:
 	}
 
 	void print_Block(){
-		cout << "Block accesses by tid:\n";
+		std::cout << "Block accesses by tid:\n";
 		for(int i = 0; i < BLOCK_SIZE_BYTES/WORD_SIZE_BYTES; i++){
 			cout << (int) word_accessed[i] << " ";		
 		}
-		cout << "\nStatus: " << (int) status << "\tfirst_owner: " << (int) first_owner << endl;
+		std::cout << "\nStatus: " << (int) status << "\tfirst_owner: " << (int) first_owner << endl;
 	}
 };
 
 //LOCALVAR unordered_map <unsigned long, Block *> blocks;
-LOCALVAR map<unsigned long, Block *> blocks;
+LOCALVAR std::map<unsigned long, Block *> blocks;
 LOCALVAR PIN_MUTEX map_lock;
 //LOCALVAR int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
@@ -158,7 +158,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 
 	}
 	
-	cout << "ERROR in General" << endl;
+	std::cout << "ERROR in General" << endl;
 	std::exit(0);
 	return;
 }
@@ -167,7 +167,7 @@ void print_false_shared(){
 	int count_false_shared = 0;
 	int count_true_shared = 0;
 	int count_private = 0;
-	map<unsigned long, Block *>::iterator it;
+	std::map<unsigned long, Block *>::iterator it;
 	for(it = blocks.begin(); it != blocks.end(); ++it){
 		if(it->second->status == FALSE_SHARED){
 	 		//cout << it->first << endl;
@@ -242,7 +242,7 @@ int main(int argc, char *argv[])
 
     /* Init the lock */
     if(PIN_MutexInit(&map_lock) == false){
-    	cout << "fire\n";
+    	std::cout << "fire\n";
     	return 1;
     }
 
