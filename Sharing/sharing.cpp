@@ -11,7 +11,9 @@
 
 #include <iostream>
 #include <map>
-#include <unordered_map>
+
+
+#include <tr1/unordered_map>
 #include <string.h>
 
 
@@ -58,7 +60,7 @@ public:
 };
 
 //LOCALVAR unordered_map <unsigned long, Block *> blocks;
-LOCALVAR unordered_map<unsigned long, Block *> blocks;
+LOCALVAR std::tr1::unordered_map<unsigned long, Block *> blocks;
 LOCALVAR PIN_MUTEX map_lock;
 //LOCALVAR int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
