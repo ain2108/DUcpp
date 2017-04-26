@@ -61,7 +61,7 @@ LOCALVAR PIN_MUTEX map_lock;
 //LOCALVAR int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
 
-	//PIN_MutexLock(&map_lock);
+	PIN_MutexLock(&map_lock);
 
 	unsigned long block_addr = ((((unsigned long) addr) >> 6) << 6);
 	int word_in_block = (((unsigned long) addr) & word_mask) >> 2;
@@ -71,7 +71,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		Block *b = new Block((char) tid, word_in_block);
 		b->word_accessed[word_in_block] = (char) tid;
 		blocks[block_addr] = b;
-		//PIN_MutexUnlock(&map_lock);
+		PIN_MutexUnlock(&map_lock);
 		return;
 
 	/* If the block is already in the map, we would like to work with it */
@@ -83,7 +83,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 
 		/* If we know that a block is true shared already, we dont have to do anything, can go for a smoke. */
 		if(b->status == TRUE_SHARED){
-			//PIN_MutexUnlock(&map_lock);
+			PIN_MutexUnlock(&map_lock);
 			return;
 		}
 		
@@ -93,7 +93,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 			/* If no other thread has accessed this block yet */
 			if(b->first_owner == (char) tid){
 		 		b->word_accessed[word_in_block] = (char) tid;
-		 		//PIN_MutexUnlock(&map_lock);
+		 		PIN_MutexUnlock(&map_lock);
 		 		return;
 			}
 
@@ -103,26 +103,26 @@ VOID MemRef(THREADID tid, VOID* addr) {
 				b->word_accessed[word_in_block] = (char) tid;
 				b->status = FALSE_SHARED;
 				b->first_owner = NO_THREAD;
-				//PIN_MutexUnlock(&map_lock);
+				PIN_MutexUnlock(&map_lock);
 				return;
 			}
 
 			/* If we collide with the thread, we should mark it TRUE_SHARED */
 			b->status = TRUE_SHARED;
-			//PIN_MutexUnlock(&map_lock);
+			PIN_MutexUnlock(&map_lock);
 			return;
 		}
 
 		
 		if(b->word_accessed[word_in_block] == (char) NO_THREAD || b->word_accessed[word_in_block] == (char) tid){
 			b->word_accessed[word_in_block] = (char) tid;
-			//PIN_MutexUnlock(&map_lock);
+			PIN_MutexUnlock(&map_lock);
 			return;
 		}
 
 
 		b->status = TRUE_SHARED;
-		//PIN_MutexUnlock(&map_lock);
+		PIN_MutexUnlock(&map_lock);
 		return;
 
 	}
