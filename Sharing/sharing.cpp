@@ -6,6 +6,8 @@
 #include <exception>
 #include <memory>
 
+#include <bsmao>
+
 #define MAX_THREAD_ID 32
 
 #include <iostream>
