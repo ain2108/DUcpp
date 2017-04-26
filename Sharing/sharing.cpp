@@ -60,7 +60,7 @@ public:
 };
 
 //LOCALVAR unordered_map <unsigned long, Block *> blocks;
-LOCALVAR tr1::unordered_map<unsigned long, Block *> blocks;
+LOCALVAR tr1::unordered_map<unsigned long, unsigned long> blocks;
 LOCALVAR PIN_MUTEX map_lock;
 //LOCALVAR int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
@@ -76,7 +76,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 	if(blocks.find(block_addr) == blocks.end()){
 		Block *b = new Block((char) tid, word_in_block);
 		b->word_accessed[word_in_block] = (char) tid;
-		blocks[block_addr] = b;
+		blocks[block_addr] = (unsigned long) b;
 		//blocks_used++;
 		PIN_MutexUnlock(&map_lock);
 		return;
@@ -85,7 +85,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 	}else{
 
 		/* Lets get a pointer to that block so we can work with it*/
-		Block *b = blocks[block_addr];
+		Block *b = (Block *) blocks[block_addr];
 
 
 		/* If we know that a block is true shared already, we dont have to do anything, can go for a smoke. */
@@ -168,7 +168,7 @@ void print_false_shared(){
 	int count_false_shared = 0;
 	int count_true_shared = 0;
 	int count_private = 0;
-	tr1::unordered_map<unsigned long, Block *>::iterator it;
+	tr1::unordered_map<unsigned long, unsigned long>::iterator it;
 	for(it = blocks.begin(); it != blocks.end(); ++it){
 		if(it->second->status == FALSE_SHARED){
 	 		//cout << it->first << endl;
