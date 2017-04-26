@@ -73,7 +73,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 	int word_in_block = (((unsigned long) addr) & word_mask) >> 2;
 
 	/* Check if we have that block in the map already */
-	if(blocks.find(block_addr) == blocks.end()){
+	if(1){//blocks.find(block_addr) == blocks.end()){
 		Block *b = new Block((char) tid, word_in_block);
 		b->word_accessed[word_in_block] = (char) tid;
 		blocks[block_addr] = (unsigned long) b;
@@ -168,24 +168,24 @@ void print_false_shared(){
 	int count_false_shared = 0;
 	int count_true_shared = 0;
 	int count_private = 0;
-	tr1::unordered_map<unsigned long, unsigned long>::iterator it;
-	for(it = blocks.begin(); it != blocks.end(); ++it){
-		if(it->second->status == FALSE_SHARED){
-	 		//cout << it->first << endl;
-	 		count_false_shared++; 
-	 	}
+	// tr1::unordered_map<unsigned long, unsigned long>::iterator it;
+	// for(it = blocks.begin(); it != blocks.end(); ++it){
+	// 	if(it->second->status == FALSE_SHARED){
+	//  		//cout << it->first << endl;
+	//  		count_false_shared++; 
+	//  	}
 
-	 	if(it->second->status == TRUE_SHARED){
-	 		//cout << it->first << endl;
-	 		count_true_shared++; 
-	 	}
+	//  	if(it->second->status == TRUE_SHARED){
+	//  		//cout << it->first << endl;
+	//  		count_true_shared++; 
+	//  	}
 
-	 	if(it->second->status == PRIVATE){
-	 		//cout << it->first << endl;
-	 		count_private++; 
-	 	}
+	//  	if(it->second->status == PRIVATE){
+	//  		//cout << it->first << endl;
+	//  		count_private++; 
+	//  	}
 
-	}
+	// }
 	cout << "total false shared: " << count_false_shared << endl;
 	cout << "total true shared: " << count_true_shared << endl;
 	cout << "total private: " << count_private << endl;
