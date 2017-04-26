@@ -10,10 +10,6 @@
 #define MAX_THREAD_ID 32
 
 #include <iostream>
-#include <map>
-//#include <unordered_map>
-//#include <tr1/unordered_map>
-#include <tr1/functional>
 #include <string.h>
 
 
