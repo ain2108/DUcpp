@@ -10,7 +10,7 @@
 #define MAX_THREAD_ID 32
 
 #include <iostream>
-#include <map>
+//#include <map>
 
 
 #include <tr1/unordered_map>
@@ -60,7 +60,7 @@ public:
 };
 
 //LOCALVAR unordered_map <unsigned long, Block *> blocks;
-LOCALVAR std::tr1::unordered_map<unsigned long, Block *> blocks;
+LOCALVAR tr1::unordered_map<unsigned long, Block *> blocks;
 LOCALVAR PIN_MUTEX map_lock;
 //LOCALVAR int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
@@ -168,7 +168,7 @@ void print_false_shared(){
 	int count_false_shared = 0;
 	int count_true_shared = 0;
 	int count_private = 0;
-	std::tr1::unordered_map<unsigned long, Block *>::iterator it;
+	tr1::unordered_map<unsigned long, Block *>::iterator it;
 	for(it = blocks.begin(); it != blocks.end(); ++it){
 		if(it->second->status == FALSE_SHARED){
 	 		//cout << it->first << endl;
