@@ -24,7 +24,7 @@ using namespace std;
 #define MAX_THREAD_ID 32
 #define NO_THREAD -1
 
-unsigned long word_mask = 0x3c;
+
 class Block;
 
 class Block{
@@ -55,106 +55,8 @@ public:
 	}
 };
 
-LOCALVAR map<unsigned long, Block *> blocks;
-LOCALVAR PIN_MUTEX map_lock;
-LOCALVAR int blocks_used = 0;
+
 VOID MemRef(THREADID tid, VOID* addr) {
-
-	PIN_MutexLock(&map_lock);
-	mem_ref_counter++;
-
-	unsigned long uaddr = (unsigned long) addr;
-	unsigned long block_addr = ((uaddr >> 6) << 6);
-	int word_in_block = (uaddr & word_mask) >> 2;
-
-	/* Check if we have that block in the map already */
-	if(blocks.find(block_addr) == blocks.end()){
-		Block *b = new Block((char) tid, word_in_block);
-		b->word_accessed[word_in_block] = (char) tid;
-		blocks[block_addr] = b;
-		blocks_used++;
-		PIN_MutexUnlock(&map_lock);
-		return;
-
-	/* If the block is already in the map, we would like to work with it */
-	}else{
-
-		/* Lets get a pointer to that block so we can work with it*/
-		Block *b = blocks[block_addr];
-		
-
-		if(b->status == PRIVATE){
-
-			/* If no other thread has accessed this block yet */
-			if(b->first_owner == (char) tid){
-		 		b->word_accessed[word_in_block] = (char) tid;
-		 		PIN_MutexUnlock(&map_lock);
-		 		return;
-			}
-
-			/* If we are a different thread, check if the word was not touched. 
-			If so, touch and set shared */
-			if(b->word_accessed[word_in_block] == (char) NO_THREAD){
-				b->word_accessed[word_in_block] = (char) tid;
-				b->status = FALSE_SHARED;
-				b->first_owner = NO_THREAD;
-				PIN_MutexUnlock(&map_lock);
-				return;
-			}
-
-			/* If we collide with the thread, we should mark it TRUE_SHARED */
-			if(b->word_accessed[word_in_block] != (char) tid){
-				b->word_accessed[word_in_block] = (char) tid;
-				b->status = TRUE_SHARED;
-				b->first_owner = NO_THREAD;
-				PIN_MutexUnlock(&map_lock);
-				return;
-			}
-
-			cout << "ERROR in Private" << endl;
-			std::exit(0);
-
-		}
-
-		if(b->status == FALSE_SHARED){
-			/* If we collide with the thread, we should mark it TRUE_SHARED */
-			if(b->word_accessed[word_in_block] == (char) NO_THREAD){
-				b->word_accessed[word_in_block] = (char) tid;
-				PIN_MutexUnlock(&map_lock);
-				return;
-			}
-
-			if(b->word_accessed[word_in_block] == (char) tid){
-				b->word_accessed[word_in_block] = (char) tid;
-				PIN_MutexUnlock(&map_lock);
-				return;
-			}
-
-			if(b->word_accessed[word_in_block] != (char) tid){
-				b->word_accessed[word_in_block] = (char) tid;
-				b->status = TRUE_SHARED;
-				PIN_MutexUnlock(&map_lock);
-				return;
-			}
-
-			cout << "ERROR in FALSE_SHARED" << endl;
-			std::exit(0);
-
-
-		}
-
-		/* If we know that a block is true shared already, we dont have to do anything, can go for a smoke. */
-		if(b->status == TRUE_SHARED){
-			b->word_accessed[word_in_block] = (char) tid;
-			PIN_MutexUnlock(&map_lock);
-			return;
-		}
-
-
-	}
-	
-	cout << "ERROR in General" << endl;
-	std::exit(0);
 	return;
 }
 
@@ -233,13 +135,6 @@ INT32 Usage()
 int main(int argc, char *argv[])
 {
     if (PIN_Init(argc, argv)) return Usage();
-
-
-    /* Init the lock */
-    if(PIN_MutexInit(&map_lock) == false){
-    	cout << "fire\n";
-    	return 1;
-    }
 
     TRACE_AddInstrumentFunction(Trace, 0);
     PIN_AddFiniFunction(Fini, 0);
