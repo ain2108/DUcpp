@@ -13,6 +13,7 @@
 #include <map>
 //#include <unordered_map>
 //#include <tr1/unordered_map>
+#include <tr1/functional>
 #include <string.h>
 
 
