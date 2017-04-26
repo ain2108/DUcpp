@@ -62,9 +62,6 @@ LOCALVAR PIN_MUTEX map_lock;
 VOID MemRef(THREADID tid, VOID* addr) {
 
 	PIN_MutexLock(&map_lock);
-	//mem_ref_counter++;
-
-	//unsigned long uaddr = ((unsigned long) addr);
 	unsigned long block_addr = ((((unsigned long) addr) >> 6) << 6);
 	int word_in_block = (((unsigned long) addr) & word_mask) >> 2;
 
@@ -72,8 +69,6 @@ VOID MemRef(THREADID tid, VOID* addr) {
 	if(blocks.find(block_addr) == blocks.end()){
 		Block *b = new Block((char) tid, word_in_block);
 		b->word_accessed[word_in_block] = (char) tid;
-		blocks[block_addr] = b;
-		//blocks_used++;
 		PIN_MutexUnlock(&map_lock);
 		return;
 
@@ -86,7 +81,6 @@ VOID MemRef(THREADID tid, VOID* addr) {
 
 		/* If we know that a block is true shared already, we dont have to do anything, can go for a smoke. */
 		if(b->status == TRUE_SHARED){
-			//b->word_accessed[word_in_block] = (char) tid;
 			PIN_MutexUnlock(&map_lock);
 			return;
 		}
@@ -112,46 +106,22 @@ VOID MemRef(THREADID tid, VOID* addr) {
 			}
 
 			/* If we collide with the thread, we should mark it TRUE_SHARED */
-			//if(b->word_accessed[word_in_block] != (char) tid){
-			//b->word_accessed[word_in_block] = (char) tid;
 			b->status = TRUE_SHARED;
-			//b->first_owner = NO_THREAD;
 			PIN_MutexUnlock(&map_lock);
 			return;
-			//}
-
-			// cout << "ERROR in Private" << endl;
-			// std::exit(0);
-
 		}
 
-		//if(b->status == FALSE_SHARED){
-			/* If we collide with the thread, we should mark it TRUE_SHARED */
-			if(b->word_accessed[word_in_block] == (char) NO_THREAD || b->word_accessed[word_in_block] == (char) tid){
-				b->word_accessed[word_in_block] = (char) tid;
-				PIN_MutexUnlock(&map_lock);
-				return;
-			}
-
-			// if(b->word_accessed[word_in_block] == (char) tid){
-			// 	b->word_accessed[word_in_block] = (char) tid;
-			// 	PIN_MutexUnlock(&map_lock);
-			// 	return;
-			// }
-
-			//if(b->word_accessed[word_in_block] != (char) tid){
-			//b->word_accessed[word_in_block] = (char) tid;
-			b->status = TRUE_SHARED;
+		
+		if(b->word_accessed[word_in_block] == (char) NO_THREAD || b->word_accessed[word_in_block] == (char) tid){
+			b->word_accessed[word_in_block] = (char) tid;
 			PIN_MutexUnlock(&map_lock);
 			return;
-			//}
-
-			// cout << "ERROR in FALSE_SHARED" << endl;
-			// std::exit(0);
+		}
 
 
-		//}
-
+		b->status = TRUE_SHARED;
+		PIN_MutexUnlock(&map_lock);
+		return;
 
 	}
 	
@@ -237,11 +207,9 @@ VOID Fini(INT32 code, VOID *v) {
 	 		count_false_shared++; 
 	 	}
 	}
-
-
     out.close();
+
 	print_false_shared();
-	//cout << "memref was called " << mem_ref_counter << " times " << endl;
 }
 
 INT32 Usage()
