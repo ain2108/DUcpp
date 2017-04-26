@@ -12,6 +12,7 @@
 #include <iostream>
 #include <map>
 //#include <unordered_map>
+#include <tr1/unordered_map>
 #include <string.h>
 
 
