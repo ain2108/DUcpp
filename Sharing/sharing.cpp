@@ -61,7 +61,7 @@ LOCALVAR int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
 
 	PIN_MutexLock(&map_lock);
-	mem_ref_counter++;
+	//mem_ref_counter++;
 
 	unsigned long uaddr = (unsigned long) addr;
 	unsigned long block_addr = ((uaddr >> 6) << 6);
@@ -72,7 +72,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		Block *b = new Block((char) tid, word_in_block);
 		b->word_accessed[word_in_block] = (char) tid;
 		blocks[block_addr] = b;
-		blocks_used++;
+		//blocks_used++;
 		PIN_MutexUnlock(&map_lock);
 		return;
 
@@ -81,6 +81,14 @@ VOID MemRef(THREADID tid, VOID* addr) {
 
 		/* Lets get a pointer to that block so we can work with it*/
 		Block *b = blocks[block_addr];
+
+
+		/* If we know that a block is true shared already, we dont have to do anything, can go for a smoke. */
+		if(b->status == TRUE_SHARED){
+			//b->word_accessed[word_in_block] = (char) tid;
+			PIN_MutexUnlock(&map_lock);
+			return;
+		}
 		
 
 		if(b->status == PRIVATE){
@@ -103,52 +111,45 @@ VOID MemRef(THREADID tid, VOID* addr) {
 			}
 
 			/* If we collide with the thread, we should mark it TRUE_SHARED */
-			if(b->word_accessed[word_in_block] != (char) tid){
-				b->word_accessed[word_in_block] = (char) tid;
-				b->status = TRUE_SHARED;
-				b->first_owner = NO_THREAD;
-				PIN_MutexUnlock(&map_lock);
-				return;
-			}
-
-			cout << "ERROR in Private" << endl;
-			std::exit(0);
-
-		}
-
-		if(b->status == FALSE_SHARED){
-			/* If we collide with the thread, we should mark it TRUE_SHARED */
-			if(b->word_accessed[word_in_block] == (char) NO_THREAD){
-				b->word_accessed[word_in_block] = (char) tid;
-				PIN_MutexUnlock(&map_lock);
-				return;
-			}
-
-			if(b->word_accessed[word_in_block] == (char) tid){
-				b->word_accessed[word_in_block] = (char) tid;
-				PIN_MutexUnlock(&map_lock);
-				return;
-			}
-
-			if(b->word_accessed[word_in_block] != (char) tid){
-				b->word_accessed[word_in_block] = (char) tid;
-				b->status = TRUE_SHARED;
-				PIN_MutexUnlock(&map_lock);
-				return;
-			}
-
-			cout << "ERROR in FALSE_SHARED" << endl;
-			std::exit(0);
-
-
-		}
-
-		/* If we know that a block is true shared already, we dont have to do anything, can go for a smoke. */
-		if(b->status == TRUE_SHARED){
-			b->word_accessed[word_in_block] = (char) tid;
+			//if(b->word_accessed[word_in_block] != (char) tid){
+			//b->word_accessed[word_in_block] = (char) tid;
+			b->status = TRUE_SHARED;
+			//b->first_owner = NO_THREAD;
 			PIN_MutexUnlock(&map_lock);
 			return;
+			//}
+
+			// cout << "ERROR in Private" << endl;
+			// std::exit(0);
+
 		}
+
+		//if(b->status == FALSE_SHARED){
+			/* If we collide with the thread, we should mark it TRUE_SHARED */
+			if(b->word_accessed[word_in_block] == (char) NO_THREAD || b->word_accessed[word_in_block] == (char) tid){
+				b->word_accessed[word_in_block] = (char) tid;
+				PIN_MutexUnlock(&map_lock);
+				return;
+			}
+
+			// if(b->word_accessed[word_in_block] == (char) tid){
+			// 	b->word_accessed[word_in_block] = (char) tid;
+			// 	PIN_MutexUnlock(&map_lock);
+			// 	return;
+			// }
+
+			//if(b->word_accessed[word_in_block] != (char) tid){
+			//b->word_accessed[word_in_block] = (char) tid;
+			b->status = TRUE_SHARED;
+			PIN_MutexUnlock(&map_lock);
+			return;
+			//}
+
+			// cout << "ERROR in FALSE_SHARED" << endl;
+			// std::exit(0);
+
+
+		//}
 
 
 	}
@@ -220,7 +221,7 @@ VOID Trace(TRACE trace, VOID *v) {
 
 VOID Fini(INT32 code, VOID *v) {
 	print_false_shared();
-	cout << "memref was called " << mem_ref_counter << " times " << endl;
+	//cout << "memref was called " << mem_ref_counter << " times " << endl;
 }
 
 INT32 Usage()
