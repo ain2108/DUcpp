@@ -168,7 +168,7 @@ void print_false_shared(){
 	int count_false_shared = 0;
 	int count_true_shared = 0;
 	int count_private = 0;
-	unordered_map<unsigned long, Block *>::iterator it;
+	std::tr1::unordered_map<unsigned long, Block *>::iterator it;
 	for(it = blocks.begin(); it != blocks.end(); ++it){
 		if(it->second->status == FALSE_SHARED){
 	 		//cout << it->first << endl;
