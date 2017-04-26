@@ -58,14 +58,14 @@ public:
 LOCALVAR map<unsigned long, Block *> blocks;
 LOCALVAR PIN_MUTEX map_lock;
 //LOCALVAR int blocks_used = 0;
-inline VOID MemRef(THREADID tid, VOID* addr) {
+VOID MemRef(THREADID tid, VOID* addr) {
 
 	PIN_MutexLock(&map_lock);
 	//mem_ref_counter++;
 
-	unsigned long uaddr = (unsigned long) addr;
-	unsigned long block_addr = ((uaddr >> 6) << 6);
-	int word_in_block = (uaddr & word_mask) >> 2;
+	//unsigned long uaddr = ((unsigned long) addr);
+	unsigned long block_addr = ((((unsigned long) addr) >> 6) << 6);
+	int word_in_block = (((unsigned long) addr) & word_mask) >> 2;
 
 	/* Check if we have that block in the map already */
 	if(blocks.find(block_addr) == blocks.end()){
