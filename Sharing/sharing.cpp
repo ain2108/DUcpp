@@ -185,7 +185,7 @@ void print_false_shared(){
 	cout << "total true shared: " << count_true_shared << endl;
 	cout << "total private: " << count_private << endl;
 
-	cout << "total blocks created: " << blocks_used << endl;
+	//cout << "total blocks created: " << blocks_used << endl;
 }
 
 KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "sharing.out", "file name for falsely-shared cache block list");
