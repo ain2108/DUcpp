@@ -221,6 +221,25 @@ VOID Trace(TRACE trace, VOID *v) {
 }
 
 VOID Fini(INT32 code, VOID *v) {
+
+	string filename;
+    std::ofstream out;
+    filename =  KnobOutputFile.Value();
+    out.open(filename.c_str());
+
+
+    int count_false_shared = 0;
+
+	std::map<unsigned long, Block *>::iterator it;
+	for(it = blocks.begin(); it != blocks.end(); ++it){
+		if(it->second->status == FALSE_SHARED){
+	 		out << ((void *) it->first) << endl;
+	 		count_false_shared++; 
+	 	}
+	}
+
+
+    out.close();
 	print_false_shared();
 	//cout << "memref was called " << mem_ref_counter << " times " << endl;
 }
