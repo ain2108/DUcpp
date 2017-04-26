@@ -57,8 +57,8 @@ public:
 
 LOCALVAR map<unsigned long, Block *> blocks;
 LOCALVAR PIN_MUTEX map_lock;
-LOCALVAR int blocks_used = 0;
-VOID MemRef(THREADID tid, VOID* addr) {
+//LOCALVAR int blocks_used = 0;
+inline VOID MemRef(THREADID tid, VOID* addr) {
 
 	PIN_MutexLock(&map_lock);
 	//mem_ref_counter++;
