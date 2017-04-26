@@ -211,7 +211,7 @@ VOID Fini(INT32 code, VOID *v) {
 	}
     out.close();
 
-	//print_false_shared();
+	print_false_shared();
 	//cout << "memref was called " << mem_ref_counter << " times " << endl;
 }
 
