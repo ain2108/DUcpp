@@ -58,7 +58,7 @@ public:
 };
 
 //LOCALVAR unordered_map <unsigned long, Block *> blocks;
-LOCALVAR unordered_map <unsigned long, unsigned long> blocks;
+LOCALVAR std::unordered_map<unsigned long, unsigned long> blocks;
 LOCALVAR PIN_MUTEX map_lock;
 //LOCALVAR int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
