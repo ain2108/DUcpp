@@ -25,10 +25,7 @@ using namespace std;
 #define NO_THREAD -1
 
 unsigned long word_mask = 0x3c;
-
 class Block;
-LOCALVAR map<unsigned long, Block *> blocks;
-
 
 class Block{
 public:
@@ -58,33 +55,17 @@ public:
 	}
 };
 
-LOCALVAR vector<vector<unsigned long> > accesses(MAX_THREAD_ID);
-
-
-LOCALVAR int mem_ref_counter = 0;
+LOCALVAR map<unsigned long, Block *> blocks;
 LOCALVAR PIN_MUTEX map_lock;
-// VOID MemRef(THREADID tid, VOID* addr) {
-// 	PIN_MutexLock(&map_lock);
-// 	{
-// 	accesses[(int) tid].push_back((unsigned long) addr);
-// 	mem_ref_counter++;
-// 	}
-// 	PIN_MutexUnlock(&map_lock);
-// 	//cout << tid << endl;
-// }
-
 LOCALVAR int blocks_used = 0;
 VOID MemRef(THREADID tid, VOID* addr) {
 
 	PIN_MutexLock(&map_lock);
 	mem_ref_counter++;
-	// cout << "locked by " << tid << endl;
+
 	unsigned long uaddr = (unsigned long) addr;
 	unsigned long block_addr = ((uaddr >> 6) << 6);
 	int word_in_block = (uaddr & word_mask) >> 2;
-	//cout << uaddr << " " << block_addr << " " << word_in_block << endl;
-
-	//cout << "locked " << (char) tid << " vs " << tid << endl;
 
 	/* Check if we have that block in the map already */
 	if(blocks.find(block_addr) == blocks.end()){
@@ -94,7 +75,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		blocks_used++;
 		PIN_MutexUnlock(&map_lock);
 		return;
-		//cout << "created new block " << block_addr << endl;
+
 	/* If the block is already in the map, we would like to work with it */
 	}else{
 
@@ -130,7 +111,6 @@ VOID MemRef(THREADID tid, VOID* addr) {
 				return;
 			}
 
-			//throw std::invalid_argument("ERROR in PRIVATE");
 			cout << "ERROR in Private" << endl;
 			std::exit(0);
 
@@ -138,7 +118,6 @@ VOID MemRef(THREADID tid, VOID* addr) {
 
 		if(b->status == FALSE_SHARED){
 			/* If we collide with the thread, we should mark it TRUE_SHARED */
-			
 			if(b->word_accessed[word_in_block] == (char) NO_THREAD){
 				b->word_accessed[word_in_block] = (char) tid;
 				PIN_MutexUnlock(&map_lock);
@@ -172,37 +151,7 @@ VOID MemRef(THREADID tid, VOID* addr) {
 		}
 
 
-		/* Lets check who the owner is. If we are that owner, then we are done. Notice, that when a block becomes shared,
-		ownership is set NO_THREAD */
-		// if(b->first_owner == (char) tid){
-		// 	//TODO: unlock
-		// 	// cout << "unlocked by " << tid << endl;
-		// 	b->word_accessed[word_in_block] = (char) tid;
-		// 	PIN_MutexUnlock(&map_lock);
-		// 	return;
-		// }
-
-		/* At this point it is left to decide if we true share or fake share */
-		/* We want to check if the word has been accessed by not us. Need to check against other threads as well as no thread */
-		// if((b->word_accessed[word_in_block] != (char) NO_THREAD) && (b->word_accessed[word_in_block] != (char) tid)){
-		// 	b->status = TRUE_SHARED;
-		// 	PIN_MutexUnlock(&map_lock);
-		// 	return;
-		//  We know that this is not a true shared block, but we need to make sure everyone knows that we use the word 
-		// }else{
-		// 	b->word_accessed[word_in_block] = (char) tid;
-		// 	b->status = FALSE_SHARED;
-		// 	b->first_owner = NO_THREAD;
-		// 	PIN_MutexUnlock(&map_lock);
-		// 	return;
-		// }
-
-
 	}
-
-	//TODO: Unlock
-	// cout << "unlocked by " << tid << endl;
-	// PIN_MutexUnlock(map_lock);
 	
 	cout << "ERROR in General" << endl;
 	std::exit(0);
@@ -240,11 +189,6 @@ void print_false_shared(){
 
 KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool", "o", "sharing.out", "file name for falsely-shared cache block list");
 
-// This analysis routine is called on every memory reference.
-// VOID MemRef(THREADID tid, VOID* addr) {
-// 	unsigned long uaddr = (unsigned long) addr;
-// 	cout << uaddr << " by thread " << tid << endl;
-// }
 
 // Note: Instrumentation function adapted from ManualExamples/pinatrace.cpp
 // It is called for each Trace and instruments reads and writes
@@ -275,10 +219,7 @@ VOID Trace(TRACE trace, VOID *v) {
 }
 
 VOID Fini(INT32 code, VOID *v) {
-
-
 	print_false_shared();
-
 	cout << "memref was called " << mem_ref_counter << " times " << endl;
 }
 
@@ -293,14 +234,12 @@ int main(int argc, char *argv[])
 {
     if (PIN_Init(argc, argv)) return Usage();
 
-    cout << "morning!!!!!\n";
 
     /* Init the lock */
     if(PIN_MutexInit(&map_lock) == false){
     	cout << "fire\n";
     	return 1;
     }
-    cout << "morning!\n";
 
     TRACE_AddInstrumentFunction(Trace, 0);
     PIN_AddFiniFunction(Fini, 0);
