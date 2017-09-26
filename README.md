@@ -1,3 +1,2 @@
 # OS
-Operating Systems code
-Homeworks for columbia OS1
+Random Homeworks
